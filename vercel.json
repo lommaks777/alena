@@ -1,13 +1,12 @@
 {
-  "public": true,
   "rewrites": [
     {
       "source": "/",
-      "destination": "/public/index.html"
+      "destination": "/index.html"
     },
     {
       "source": "/quiz",
-      "destination": "/public/quiz.html"
+      "destination": "/quiz.html"
     }
   ]
 }
