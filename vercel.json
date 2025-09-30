@@ -1,0 +1,13 @@
+{
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/quiz",
+      "destination": "/public/quiz.html"
+    }
+  ]
+}
