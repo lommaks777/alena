@@ -1,0 +1,16 @@
+{
+  "name": "alena-quiz",
+  "version": "1.0.0",
+  "description": "Интерактивный квиз для определения стадии адаптации в новой стране",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": ["quiz", "adaptation", "emigration", "telegram"],
+  "author": "Алексей Ломакин",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}
