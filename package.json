@@ -11,6 +11,9 @@
   "keywords": ["quiz", "adaptation", "emigration", "telegram"],
   "author": "Алексей Ломакин",
   "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.0"
+  },
   "devDependencies": {
     "serve": "^14.0.0"
   }
