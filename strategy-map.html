@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стратегическая карта адаптации</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        .map-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .map-title {
+            text-align: center;
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .strategy-map {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stage {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+        .stage-1 {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+        }
+        .stage-2 {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-color: #ffc107;
+        }
+        .stage-3 {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-color: #dc3545;
+        }
+        .stage h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .stage p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .central-node {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        .back-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .description {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Стратегическая карта адаптации</h1>
+        
+        <div class="description">
+            <p><strong>Пример документа, который вы получите на 30-минутной сессии</strong></p>
+            <p>Персонализированная карта вашего пути адаптации с конкретными шагами и временными рамками</p>
+        </div>
+
+        <div class="map-container">
+            <div class="map-title">СТАРТ: РЕШЕНИЕ И ПОДГОТОВКА</div>
+            
+            <div class="central-node">
+                🚀 СТАРТ: РЕШЕНИЕ И ПОДГОТОВКА
+            </div>
+
+            <div class="strategy-map">
+                <div class="stage stage-1">
+                    <h3>📋 ИССЛЕДОВАНИЕ СТРАН</h3>
+                    <p>• Финансы и визы</p>
+                    <p>• Документы</p>
+                    <p>• Обучение</p>
+                </div>
+
+                <div class="stage stage-1">
+                    <h3>🏠 ЖИЛЬЕ И РАБОТА</h3>
+                    <p>• Поиск жилья</p>
+                    <p>• Трудоустройство</p>
+                    <p>• Бизнес-возможности</p>
+                    <p>• Сети и контакты</p>
+                </div>
+
+                <div class="stage stage-1">
+                    <h3>📈 ЭТАП 1: АДАПТАЦИЯ</h3>
+                    <p><strong>1-2 года</strong></p>
+                    <p>• Базовые навыки</p>
+                    <p>• Первые контакты</p>
+                    <p>• Языковая практика</p>
+                </div>
+
+                <div class="stage stage-2">
+                    <h3>💰 ФИНАНСОВАЯ ДЕЯТЕЛЬНОСТЬ</h3>
+                    <p>• Банковские счета</p>
+                    <p>• Кредитная история</p>
+                    <p>• Налоговое планирование</p>
+                </div>
+
+                <div class="stage stage-2">
+                    <h3>📈 ЭТАП 2: РАЗВИТИЕ</h3>
+                    <p><strong>3-5 лет</strong></p>
+                    <p>• Карьерный рост</p>
+                    <p>• Социальная интеграция</p>
+                    <p>• Финансовая стабильность</p>
+                </div>
+
+                <div class="stage stage-3">
+                    <h3>🎯 ИНВЕСТИЦИОННЫЕ ПРОЕКТЫ</h3>
+                    <p>• Недвижимость</p>
+                    <p>• Бизнес-инвестиции</p>
+                    <p>• Пенсионное планирование</p>
+                </div>
+
+                <div class="stage stage-3">
+                    <h3>🌟 ЭТАП 3: ИНТЕГРАЦИЯ</h3>
+                    <p><strong>5+ лет</strong></p>
+                    <p>• Полная интеграция</p>
+                    <p>• Долгосрочные цели</p>
+                    <p>• Наследие и планирование</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="description">
+            <p><strong>✨ На сессии мы создадим вашу персональную карту с:</strong></p>
+            <p>• Конкретными шагами для вашей ситуации</p>
+            <p>• Временными рамками и приоритетами</p>
+            <p>• Ресурсами и контактами</p>
+            <p>• Планом действий на ближайшие месяцы</p>
+        </div>
+
+        <a href="quiz.html" class="back-btn">← Вернуться к квизу</a>
+    </div>
+</body>
+</html>
