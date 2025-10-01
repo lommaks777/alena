@@ -193,6 +193,10 @@
             font-size: 1.1rem;
             line-height: 1.6;
             margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
         }
 
         .advice {
@@ -808,12 +812,21 @@
             displayResult(resultType) {
                 const resultContent = document.getElementById('resultContent');
                 
+                // Разделяем описание и совет
+                const fullAdvice = this.advice[resultType];
+                const adviceIndex = fullAdvice.indexOf('👉 Совет:');
+                const description = adviceIndex > -1 ? fullAdvice.substring(0, adviceIndex).trim() : fullAdvice;
+                const advice = adviceIndex > -1 ? fullAdvice.substring(adviceIndex).trim() : '';
+                
                 resultContent.innerHTML = `
                     <div class="result-title">${this.results[resultType]}</div>
+                    <div class="result-description">${description}</div>
+                    ${advice ? `
                     <div class="advice">
                         <h4>💡 Совет:</h4>
-                        <p>${this.advice[resultType]}</p>
+                        <p>${advice}</p>
                     </div>
+                    ` : ''}
                 `;
             }
 
