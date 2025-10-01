@@ -866,8 +866,13 @@
                     console.log('Telegram API response:', responseData);
                     
                     if (response.ok) {
-                        alert('✅ Спасибо за заявку! Мы свяжемся с вами в ближайшее время для записи на бесплатную сессию.');
+                        alert('✅ Спасибо за заявку! Сейчас вы будете перенаправлены на страницу бронирования сессии.');
                         e.target.reset();
+                        
+                        // Переходим на страницу бронирования Cal.com
+                        setTimeout(() => {
+                            window.open('https://cal.com/%D0%B0%D0%BB%D0%B5%D0%BD%D0%B0-%D0%BF%D0%BE%D0%B7%D0%B4%D0%BD%D1%8F%D0%BA%D0%BE%D0%B2%D0%B0-q1xurc/30min', '_blank');
+                        }, 2000);
                     } else {
                         console.error('Telegram API error:', responseData);
                         throw new Error(`Ошибка API: ${responseData.description || 'Неизвестная ошибка'}`);
