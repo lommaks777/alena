@@ -8,10 +8,16 @@
     "build": "echo 'Static site - no build needed'",
     "dev": "npx serve ."
   },
-  "keywords": ["quiz", "adaptation", "emigration", "telegram"],
+  "keywords": [
+    "quiz",
+    "adaptation",
+    "emigration",
+    "telegram"
+  ],
   "author": "Алексей Ломакин",
   "license": "MIT",
   "dependencies": {
+    "@vercel/analytics": "^1.5.0",
     "express": "^4.18.0"
   },
   "devDependencies": {
