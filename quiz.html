@@ -52,6 +52,27 @@
             line-height: 1.6;
         }
 
+        .stats-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-button:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         .quiz-container {
             padding: 30px 20px;
             min-height: 400px;
@@ -303,6 +324,9 @@
         <div class="header">
             <h1>Квиз: Стадия адаптации</h1>
             <p>⏱️ 1 минута • 💡 Понять, на какой стадии адаптации вы сейчас и что поможет прямо сейчас</p>
+            <button class="stats-button" onclick="window.open('stats.html', '_blank')" title="Посмотреть статистику квиза">
+                📊 Статистика
+            </button>
         </div>
 
         <div class="quiz-container" id="quizContainer">

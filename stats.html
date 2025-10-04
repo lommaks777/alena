@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика квиза по адаптации</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border-left: 5px solid #667eea;
+        }
+
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-description {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            height: 300px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            min-height: 20px;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .question-stats {
+            margin-top: 30px;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .answer-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .answer-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .answer-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .answer-count {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .bar-chart {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .bar {
+                height: 40px;
+                border-radius: 0 0 10px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='quiz.html'">← Назад к квизу</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>📊 Статистика квиза</h1>
+            <p>Анализ ответов пользователей на квиз по адаптации</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <h3>Загрузка статистики...</h3>
+        </div>
+
+        <div id="statsContent" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalResponses">0</div>
+                    <div class="stat-description">Всего прохождений квиза</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="uniqueUsers">0</div>
+                    <div class="stat-description">Уникальных пользователей</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="completionRate">0%</div>
+                    <div class="stat-description">Процент завершения</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="avgTime">0 мин</div>
+                    <div class="stat-description">Среднее время прохождения</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title">Распределение результатов</h3>
+                <div class="bar-chart" id="resultsChart">
+                    <!-- Диаграмма будет создана динамически -->
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title">Статистика по вопросам</h3>
+                <div class="question-stats" id="questionStats">
+                    <!-- Статистика по вопросам будет создана динамически -->
+                </div>
+            </div>
+        </div>
+
+        <div id="errorContent" class="error" style="display: none;">
+            <h3>Ошибка загрузки статистики</h3>
+            <p>Не удалось загрузить данные. Попробуйте обновить страницу.</p>
+        </div>
+    </div>
+
+    <script>
+        class StatsManager {
+            constructor() {
+                this.stats = {
+                    totalResponses: 0,
+                    uniqueUsers: 0,
+                    completionRate: 0,
+                    avgTime: 0,
+                    results: { A: 0, B: 0, C: 0, D: 0 },
+                    questions: {}
+                };
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadStats();
+                    this.displayStats();
+                } catch (error) {
+                    console.error('Ошибка загрузки статистики:', error);
+                    this.showError();
+                }
+            }
+
+            async loadStats() {
+                // Симуляция загрузки данных
+                // В реальном приложении здесь был бы запрос к API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Генерируем тестовые данные
+                this.stats = {
+                    totalResponses: 1247,
+                    uniqueUsers: 892,
+                    completionRate: 87,
+                    avgTime: 3.2,
+                    results: { A: 312, B: 298, C: 267, D: 370 },
+                    questions: {
+                        1: {
+                            text: "Как долго вы живете в новой стране?",
+                            answers: {
+                                "Менее 6 месяцев": 45,
+                                "6-12 месяцев": 38,
+                                "1-2 года": 32,
+                                "Более 2 лет": 25
+                            }
+                        },
+                        2: {
+                            text: "Как вы оцениваете свой уровень языка?",
+                            answers: {
+                                "Начальный": 28,
+                                "Средний": 42,
+                                "Продвинутый": 25,
+                                "Носитель": 5
+                            }
+                        },
+                        3: {
+                            text: "Что вызывает у вас больше всего стресса?",
+                            answers: {
+                                "Бытовые вопросы": 35,
+                                "Работа/карьера": 28,
+                                "Социальные связи": 22,
+                                "Документы/визы": 15
+                            }
+                        }
+                    }
+                };
+            }
+
+            displayStats() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('statsContent').style.display = 'block';
+
+                // Основная статистика
+                document.getElementById('totalResponses').textContent = this.stats.totalResponses.toLocaleString();
+                document.getElementById('uniqueUsers').textContent = this.stats.uniqueUsers.toLocaleString();
+                document.getElementById('completionRate').textContent = this.stats.completionRate + '%';
+                document.getElementById('avgTime').textContent = this.stats.avgTime + ' мин';
+
+                // Диаграмма результатов
+                this.createResultsChart();
+                
+                // Статистика по вопросам
+                this.createQuestionStats();
+            }
+
+            createResultsChart() {
+                const chartContainer = document.getElementById('resultsChart');
+                const maxValue = Math.max(...Object.values(this.stats.results));
+                
+                const resultLabels = {
+                    A: '✈️ Турист',
+                    B: '🌊 Культурный шок',
+                    C: '🌑 Долгий подъем',
+                    D: '🌅 Деятельная адаптация'
+                };
+
+                chartContainer.innerHTML = '';
+                
+                Object.entries(this.stats.results).forEach(([key, value]) => {
+                    const percentage = (value / maxValue) * 100;
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = `${Math.max(percentage, 10)}%`;
+                    bar.innerHTML = `
+                        <div>${value}</div>
+                        <div class="bar-label">${resultLabels[key]}</div>
+                    `;
+                    chartContainer.appendChild(bar);
+                });
+            }
+
+            createQuestionStats() {
+                const container = document.getElementById('questionStats');
+                container.innerHTML = '';
+
+                Object.entries(this.stats.questions).forEach(([questionId, questionData]) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question-item';
+                    
+                    questionDiv.innerHTML = `
+                        <div class="question-text">${questionData.text}</div>
+                        <div class="answer-stats">
+                            ${Object.entries(questionData.answers).map(([answer, count]) => `
+                                <div class="answer-item">
+                                    <div class="answer-text">${answer}</div>
+                                    <div class="answer-count">${count} ответов</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    container.appendChild(questionDiv);
+                });
+            }
+
+            showError() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorContent').style.display = 'block';
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            new StatsManager();
+        });
+    </script>
+</body>
+</html>
