@@ -419,8 +419,11 @@
                             return;
                         }
                         
+                        // Получаем текст вопроса из квиза
+                        const questionText = this.getQuestionText(questionId);
+                        
                         questionDiv.innerHTML = `
-                            <div class="question-text">Вопрос ${questionId}</div>
+                            <div class="question-text">${questionText}</div>
                             <div class="answer-stats">
                                 ${Object.entries(questionData).map(([answer, count]) => `
                                     <div class="answer-item">
@@ -437,6 +440,24 @@
                     console.error('Ошибка создания статистики по вопросам:', error);
                     container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Ошибка отображения данных по вопросам</p>';
                 }
+            }
+
+            getQuestionText(questionId) {
+                // Тексты вопросов из квиза
+                const questionTexts = {
+                    q1: "Сколько времени вы уже живёте в новой стране?",
+                    q2: "Какие мысли чаще всего крутятся в голове?",
+                    q3: "Как реагирует тело?",
+                    q4: "Утро для вас — это…",
+                    q5: "Социальные контакты",
+                    q6: "Работа и самореализация",
+                    q7: "Вечером вы чаще всего…",
+                    q8: "Что сильнее всего болит внутри?",
+                    q9: "Когда думаете о будущем…",
+                    q10: "Если бы описать себя одним словом прямо сейчас…"
+                };
+                
+                return questionTexts[questionId] || `Вопрос ${questionId}`;
             }
 
             showError() {
