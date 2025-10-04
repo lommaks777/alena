@@ -186,6 +186,26 @@
             transform: translateY(-2px);
         }
 
+        .reset-stats-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .reset-stats-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
         .loading {
             text-align: center;
             padding: 50px;
@@ -223,6 +243,9 @@
         <div class="header">
             <h1>📊 Статистика квиза</h1>
             <p>Анализ ответов пользователей на квиз по адаптации</p>
+            <button class="reset-stats-btn" onclick="resetStats()" title="Сбросить статистику">
+                🔄 Сбросить статистику
+            </button>
         </div>
 
         <div id="loading" class="loading">
@@ -298,47 +321,33 @@
             }
 
             async loadStats() {
-                // Симуляция загрузки данных
-                // В реальном приложении здесь был бы запрос к API
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Генерируем тестовые данные
-                this.stats = {
-                    totalResponses: 1247,
-                    uniqueUsers: 892,
-                    completionRate: 87,
-                    avgTime: 3.2,
-                    results: { A: 312, B: 298, C: 267, D: 370 },
-                    questions: {
-                        1: {
-                            text: "Как долго вы живете в новой стране?",
-                            answers: {
-                                "Менее 6 месяцев": 45,
-                                "6-12 месяцев": 38,
-                                "1-2 года": 32,
-                                "Более 2 лет": 25
-                            }
-                        },
-                        2: {
-                            text: "Как вы оцениваете свой уровень языка?",
-                            answers: {
-                                "Начальный": 28,
-                                "Средний": 42,
-                                "Продвинутый": 25,
-                                "Носитель": 5
-                            }
-                        },
-                        3: {
-                            text: "Что вызывает у вас больше всего стресса?",
-                            answers: {
-                                "Бытовые вопросы": 35,
-                                "Работа/карьера": 28,
-                                "Социальные связи": 22,
-                                "Документы/визы": 15
-                            }
-                        }
+                try {
+                    // Загружаем реальные данные из localStorage
+                    const storedData = localStorage.getItem('quizStats');
+                    if (storedData) {
+                        this.stats = JSON.parse(storedData);
+                    } else {
+                        // Если данных нет, показываем нули
+                        this.stats = {
+                            totalResponses: 0,
+                            uniqueUsers: 0,
+                            completionRate: 0,
+                            avgTime: 0,
+                            results: { A: 0, B: 0, C: 0, D: 0 },
+                            questions: {}
+                        };
                     }
-                };
+                } catch (error) {
+                    console.error('Ошибка загрузки статистики:', error);
+                    this.stats = {
+                        totalResponses: 0,
+                        uniqueUsers: 0,
+                        completionRate: 0,
+                        avgTime: 0,
+                        results: { A: 0, B: 0, C: 0, D: 0 },
+                        questions: {}
+                    };
+                }
             }
 
             displayStats() {
@@ -411,6 +420,14 @@
             showError() {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('errorContent').style.display = 'block';
+            }
+        }
+
+        // Функция сброса статистики
+        function resetStats() {
+            if (confirm('Вы уверены, что хотите сбросить всю статистику? Это действие нельзя отменить.')) {
+                localStorage.removeItem('quizStats');
+                location.reload();
             }
         }
 
