@@ -398,32 +398,45 @@
                 container.innerHTML = '';
 
                 // Проверяем, есть ли данные по вопросам
-                if (!this.stats.questions || Object.keys(this.stats.questions).length === 0) {
+                if (!this.stats.questions || typeof this.stats.questions !== 'object' || Object.keys(this.stats.questions).length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Данные по вопросам пока не собраны</p>';
                     return;
                 }
 
-                Object.entries(this.stats.questions).forEach(([questionId, questionData]) => {
-                    const questionDiv = document.createElement('div');
-                    questionDiv.className = 'question-item';
-                    
-                    // Создаем простую статистику по ответам
-                    const totalAnswers = Object.values(questionData).reduce((sum, count) => sum + count, 0);
-                    
-                    questionDiv.innerHTML = `
-                        <div class="question-text">Вопрос ${questionId}</div>
-                        <div class="answer-stats">
-                            ${Object.entries(questionData).map(([answer, count]) => `
-                                <div class="answer-item">
-                                    <div class="answer-text">${answer}</div>
-                                    <div class="answer-count">${count} ответов (${Math.round((count / totalAnswers) * 100)}%)</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                    
-                    container.appendChild(questionDiv);
-                });
+                try {
+                    Object.entries(this.stats.questions).forEach(([questionId, questionData]) => {
+                        if (!questionData || typeof questionData !== 'object') {
+                            return;
+                        }
+                        
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'question-item';
+                        
+                        // Создаем простую статистику по ответам
+                        const totalAnswers = Object.values(questionData).reduce((sum, count) => sum + (count || 0), 0);
+                        
+                        if (totalAnswers === 0) {
+                            return;
+                        }
+                        
+                        questionDiv.innerHTML = `
+                            <div class="question-text">Вопрос ${questionId}</div>
+                            <div class="answer-stats">
+                                ${Object.entries(questionData).map(([answer, count]) => `
+                                    <div class="answer-item">
+                                        <div class="answer-text">${answer}</div>
+                                        <div class="answer-count">${count || 0} ответов (${Math.round(((count || 0) / totalAnswers) * 100)}%)</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        
+                        container.appendChild(questionDiv);
+                    });
+                } catch (error) {
+                    console.error('Ошибка создания статистики по вопросам:', error);
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Ошибка отображения данных по вопросам</p>';
+                }
             }
 
             showError() {
