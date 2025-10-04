@@ -274,6 +274,14 @@
             display: none;
         }
 
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -302,7 +310,7 @@
     <div class="container">
         <div class="header">
             <h1>Квиз: Стадия адаптации</h1>
-            <p>⏱️ 1 минута • 💡 Понять, на какой стадии адаптации вы сейчас и что поможет прямо сейчас</p>
+            <p>⏱️ 1 минута • 💡 Понять, на какой стадии адаптации вы сейчас и что поможет прямо сейчас • <a href="/stats.html" style="color: white;">Посмотреть статистику</a></p>
         </div>
 
         <div class="quiz-container" id="quizContainer">
@@ -788,12 +796,24 @@
                 }
             }
 
-            showResults() {
+            async showResults() {
                 document.getElementById('quizContainer').classList.add('hidden');
                 document.getElementById('resultContainer').classList.add('active');
                 
                 const result = this.calculateResult();
                 this.displayResult(result);
+
+                try {
+                    await fetch('/api/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ answers: this.answers, result: result })
+                    });
+                } catch (error) {
+                    console.error('Error submitting answers:', error);
+                }
             }
 
             calculateResult() {
@@ -914,5 +934,8 @@
             new Quiz();
         });
     </script>
+    <footer class="footer">
+        Версия 1.0.0
+    </footer>
 </body>
 </html>
