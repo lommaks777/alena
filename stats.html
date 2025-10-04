@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика Квиза</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4ff;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+        .chart-container {
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        #totalResponses {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Статистика по ответам</h1>
+        <div id="totalResponses"></div>
+        <div class="charts-grid">
+            <div class="chart-container">
+                <canvas id="resultsChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="answersChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                document.getElementById('totalResponses').innerText = `Всего ответов: ${data.totalResponses}`;
+
+                // --- График по результатам ---
+                const resultsCtx = document.getElementById('resultsChart').getContext('2d');
+                new Chart(resultsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(data.resultsDistribution),
+                        datasets: [{
+                            label: 'Распределение результатов',
+                            data: Object.values(data.resultsDistribution),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Распределение по итоговым стадиям'
+                            }
+                        }
+                    }
+                });
+
+                // --- График по всем ответам ---
+                const answersCtx = document.getElementById('answersChart').getContext('2d');
+                const questionLabels = Object.keys(data.answersDistribution);
+                const answerOptions = ['A', 'B', 'C', 'D'];
+                const datasets = answerOptions.map((option, index) => {
+                    return {
+                        label: `Вариант ${option}`,
+                        data: questionLabels.map(q => data.answersDistribution[q][option] || 0),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'][index]
+                    };
+                });
+
+                new Chart(answersCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: questionLabels.map(q => `Вопрос ${q.replace('q','')}`),
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: true,
+                            },
+                            y: {
+                                stacked: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Распределение ответов на каждый вопрос'
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                document.querySelector('.container').innerHTML = '<h1>Ошибка при загрузке статистики</h1>';
+            }
+        });
+    </script>
+</body>
+</html>
