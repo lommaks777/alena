@@ -21,10 +21,11 @@ app.post('/api/submit', async (req, res) => {
             }
         }
 
-        allAnswers.push({
+        const entry = {
             timestamp: new Date().toISOString(),
-            answers: newAnswers
-        });
+            ...newAnswers
+        };
+        allAnswers.push(entry);
 
         await fs.writeFile(answersFilePath, JSON.stringify(allAnswers, null, 2));
 
