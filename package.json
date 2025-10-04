@@ -4,23 +4,5 @@
   "description": "Интерактивный квиз для определения стадии адаптации в новой стране",
   "main": "index.html",
   "scripts": {
-    "start": "npx serve .",
-    "build": "echo 'Static site - no build needed'",
-    "dev": "npx serve ."
-  },
-  "keywords": [
-    "quiz",
-    "adaptation",
-    "emigration",
-    "telegram"
-  ],
-  "author": "Алексей Ломакин",
-  "license": "MIT",
-  "dependencies": {
-    "@vercel/analytics": "^1.5.0",
-    "express": "^4.18.0"
-  },
-  "devDependencies": {
-    "serve": "^14.0.0"
-  }
+    "build": "echo 'Static site - no build needed'"
 }
