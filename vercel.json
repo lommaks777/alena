@@ -1,5 +1,25 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "api/submit.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/stats.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/submit",
+      "destination": "/api/submit.js"
+    },
+    {
+      "source": "/api/stats",
+      "destination": "/api/stats.js"
+    }
+  ],
   "buildCommand": "if [ \"$VERCEL_ENV\" == \"preview\" ]; then exit 1; else exit 0; fi",
   "outputDirectory": "."
 }
