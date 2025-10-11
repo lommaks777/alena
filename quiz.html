@@ -152,11 +152,6 @@
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .btn.active {
             opacity: 1;
             pointer-events: all;
         }
@@ -170,6 +165,7 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            pointer-events: none;
         }
         
         .btn.disabled {
@@ -748,6 +744,7 @@
                 this.currentQuestion = 0;
                 this.totalQuestions = 9;
                 this.answers = {};
+                this.startTimeMs = Date.now();
                 this.results = {
                     A: "✈️ Стадия 1. Туристка — «Пока всё ново и интересно»",
                     B: "🌊 Стадия 2. Погружение — «Всё идёт, но не так легко»",
@@ -906,7 +903,7 @@
 
             updateStats() {
                 try {
-                    const stats = JSON.parse(localStorage.getItem('quizStats') || '{}');
+                const stats = JSON.parse(localStorage.getItem('quizStats') || '{}');
                     
                     // Увеличиваем счетчик прохождений
                     stats.totalResponses = (stats.totalResponses || 0) + 1;
@@ -947,9 +944,16 @@
                     }
                     
                     // Обновляем среднее время
-                    const timeSpent = (Date.now() - this.startTime) / 1000 / 60; // в минутах
-                    const totalTime = (stats.avgTime || 0) * (stats.totalResponses - 1) + timeSpent;
-                    stats.avgTime = totalTime / stats.totalResponses;
+                    if (!this.startTimeMs) {
+                        this.startTimeMs = Date.now();
+                    }
+                    const timeSpentMinutes = (Date.now() - this.startTimeMs) / 1000 / 60;
+                    if (stats.totalResponses > 0) {
+                        const totalTime = (stats.avgTime || 0) * (stats.totalResponses - 1) + timeSpentMinutes;
+                        stats.avgTime = totalTime / stats.totalResponses;
+                    } else {
+                        stats.avgTime = timeSpentMinutes;
+                    }
                     
                     // Обновляем процент завершения (пока упрощенно)
                     stats.completionRate = Math.min(100, Math.round((stats.totalResponses / Math.max(1, stats.totalResponses)) * 100));
@@ -1170,7 +1174,8 @@
             updateProgress() {
                 const progress = (this.currentQuestion / this.totalQuestions) * 100;
                 document.getElementById('progressFill').style.width = `${progress}%`;
-                document.getElementById('questionCounter').textContent = `${this.currentQuestion} из ${this.totalQuestions}`;
+                const displayNumber = Math.min(this.currentQuestion + 1, this.totalQuestions);
+                document.getElementById('questionCounter').textContent = `${displayNumber} из ${this.totalQuestions}`;
             }
 
             updateNavigation() {
@@ -1198,16 +1203,14 @@
                     currentAnswer = this.answers[`q${this.currentQuestion}`];
                 }
 
-                const hasAnswer = currentAnswer && currentAnswer.length > 0;
+                const hasAnswer = Boolean(currentAnswer && currentAnswer.length > 0);
 
                 // Принудительно обновляем состояние кнопки "Далее"
                 if (hasAnswer) {
                     nextBtn.disabled = false;
-                    nextBtn.classList.add('active');
                     nextBtn.classList.remove('disabled');
                 } else {
                     nextBtn.disabled = true;
-                    nextBtn.classList.remove('active');
                     nextBtn.classList.add('disabled');
                 }
 
@@ -1270,7 +1273,7 @@
                     }
 
                     if (personalisedText) {
-                        resultContent.innerHTML = personaliseResultLayout(this.answers['q0'] || '', personalisedText);
+                        resultContent.innerHTML = this.personaliseResultLayout(this.answers['q0'] || '', personalisedText);
                     } else {
                         const result = this.calculateResult();
                         this.displayResult(result);
@@ -1295,13 +1298,13 @@
                 }
             }
 
-            function personaliseResultLayout(name, rawText) {
+            personaliseResultLayout(name, rawText) {
                 const safeName = name || 'ты';
 
                 try {
                     const payload = JSON.parse(rawText);
                     if (payload && payload.blocks) {
-                        return renderStructuredLayout(safeName, payload.blocks);
+                        return this.renderStructuredLayout(safeName, payload.blocks);
                     }
                 } catch (e) {
                     console.warn('AI response is not JSON, fallback to text parsing');
@@ -1326,27 +1329,27 @@
                 }).join('');
             }
 
-            function renderStructuredLayout(name, blocks) {
+            renderStructuredLayout(name, blocks) {
                 const parts = blocks.map(block => {
                     switch (block.type) {
                         case 'hero':
                             return `
                                 <section class="ai-result">
-                                    ${renderHeroContent(block, name)}
+                                    ${this.renderHeroContent(block, name)}
                                 </section>
                             `;
                         case 'section':
                             return `
                                 <section class="ai-result__section">
-                                    ${block.heading ? `<div class="ai-result__section-title">${escapeHtml(block.heading)}</div>` : ''}
-                                    ${renderSectionContent(block)}
+                                    ${block.heading ? `<div class="ai-result__section-title">${this.escapeHtml(block.heading)}</div>` : ''}
+                                    ${this.renderSectionContent(block)}
                                 </section>
                             `;
                         case 'cta':
                             return `
                                 <section class="ai-result__cta">
-                                    ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ''}
-                                    ${block.highlight ? `<strong>${escapeHtml(block.highlight)}</strong>` : ''}
+                                    ${block.text ? `<p>${this.escapeHtml(block.text)}</p>` : ''}
+                                    ${block.highlight ? `<strong>${this.escapeHtml(block.highlight)}</strong>` : ''}
                                 </section>
                             `;
                         default:
@@ -1357,40 +1360,40 @@
                 return `<div class="ai-result">${parts}</div>`;
             }
 
-            function renderHeroContent(block, name) {
+            renderHeroContent(block, name) {
                 const parts = [];
                 parts.push('<div class="ai-result__hero">');
                 if (block.badge) {
-                    parts.push(`<div class="ai-result__badge">${escapeHtml(block.badge)}</div>`);
+                    parts.push(`<div class="ai-result__badge">${this.escapeHtml(block.badge)}</div>`);
                 }
                 if (block.title) {
-                    parts.push(`<div class="ai-result__title">${escapeHtml(block.title)}</div>`);
+                    parts.push(`<div class="ai-result__title">${this.escapeHtml(block.title)}</div>`);
                 }
                 if (block.subtitle) {
-                    parts.push(`<div class="ai-result__subtitle">${escapeHtml(block.subtitle).replace('{{name}}', name)}</div>`);
+                    parts.push(`<div class="ai-result__subtitle">${this.escapeHtml(block.subtitle).replace('{{name}}', name)}</div>`);
                 }
                 if (block.description) {
-                    parts.push(`<p>${escapeHtml(block.description)}</p>`);
+                    parts.push(`<p>${this.escapeHtml(block.description)}</p>`);
                 }
                 parts.push('</div>');
                 return parts.join('');
             }
 
-            function renderSectionContent(block) {
+            renderSectionContent(block) {
                 const lines = [];
                 if (block.paragraphs) {
                     block.paragraphs.forEach(p => {
-                        lines.push(`<p>${escapeHtml(p).replace('{{name}}', block.name || '')}</p>`);
+                        lines.push(`<p>${this.escapeHtml(p).replace('{{name}}', block.name || '')}</p>`);
                     });
                 }
                 if (block.list && block.list.length) {
-                    const listItems = block.list.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+                    const listItems = block.list.map(item => `<li>${this.escapeHtml(item)}</li>`).join('');
                     lines.push(`<ul class="ai-result__list">${listItems}</ul>`);
                 }
                 return lines.join('');
             }
 
-            function escapeHtml(text) {
+            escapeHtml(text) {
                 return text
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
