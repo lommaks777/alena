@@ -1559,11 +1559,13 @@
                 console.log('Suggestion:', suggestion);
                 
                 resultContent.innerHTML = `
-                    <div class="result-title">${this.results[resultType]}</div>
-                    <div class="result-description">${description}</div>
-                    <div class="advice">
-                        <h4>💡 Мой совет:</h4>
-                        <p>${suggestion}</p>
+                    <div class="result-content">
+                        <div class="result-title">${this.results[resultType]}</div>
+                        <div class="result-description">${description}</div>
+                        <div class="advice">
+                            <h4>💡 Мой совет:</h4>
+                            <p>${suggestion}</p>
+                        </div>
                     </div>
                 `;
             }
