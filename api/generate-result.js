@@ -107,24 +107,24 @@ function buildFallbackResult({ name = '', answers = {}, questionTexts = {}, answ
         : '';
 
     return `
-<h2>Где вы сейчас</h2>
+<h2 class="section-title">Где вы сейчас</h2>
 <p><strong>${stageTitle}</strong></p>
 <p>${safeName}, ${escapeHtml(content.now)}</p>
-<h2>Что сейчас важно</h2>
+<h2 class="section-title">Что сейчас важно</h2>
 <p>${escapeHtml(content.focus)}</p>
 ${highlightsHtml}
-<h2>Через 7/14/30 дней</h2>
+<h2 class="section-title">Через 7/14/30 дней</h2>
 <h3>Через 7 дней</h3>
 <p>${escapeHtml(content.timeline[7])}</p>
 <h3>Через 14 дней</h3>
 <p>${escapeHtml(content.timeline[14])}</p>
 <h3>Через 30 дней</h3>
 <p>${escapeHtml(content.timeline[30])}</p>
-<h2>Первый шаг</h2>
+<h2 class="section-title">Первый шаг</h2>
 <p>${escapeHtml(content.firstStep)}</p>
-<h2>Рекомендация</h2>
+<h2 class="section-title">Рекомендация</h2>
 <p>${escapeHtml(content.recommendation)}</p>
-<h2>Бонус</h2>
+<h2 class="section-title">Бонус</h2>
 <p>${escapeHtml(content.bonus)}</p>
 `;
 }
@@ -164,13 +164,13 @@ module.exports = async function handler(req, res) {
 
 Строго следуй требованиям:
 1. Обращайся к человеку по имени (${safeName}).
-2. Соблюдай структуру из шести блоков. Каждый блок оформляй заголовком h2 в точной формулировке и порядке:
-   <h2>Где вы сейчас</h2>
-   <h2>Что сейчас важно</h2>
-   <h2>Через 7/14/30 дней</h2>
-   <h2>Первый шаг</h2>
-   <h2>Рекомендация</h2>
-   <h2>Бонус</h2>
+2. Соблюдай структуру из шести блоков. Каждый блок оформляй заголовком h2 с точными CSS-классами:
+   <h2 class="section-title">Где вы сейчас</h2>
+   <h2 class="section-title">Что сейчас важно</h2>
+   <h2 class="section-title">Через 7/14/30 дней</h2>
+   <h2 class="section-title">Первый шаг</h2>
+   <h2 class="section-title">Рекомендация</h2>
+   <h2 class="section-title">Бонус</h2>
 3. В блоке "Через 7/14/30 дней" добавь три подзаголовка h3 с формулировками "Через 7 дней", "Через 14 дней", "Через 30 дней" и коротко опиши каждый горизонт.
 4. Верни только чистый HTML-код без обёрток <html> или \`\`\`html\`\`\`. Используй теги h2, h3, p, ul, li, strong, em. Добавляй уместные эмодзи, но не перегружай текст.
 5. Не добавляй призыв к действию или упоминание бонусов, если об этом прямо не сказано. Давай персональные наблюдения и мягкие рекомендации.
