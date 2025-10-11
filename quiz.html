@@ -777,6 +777,7 @@
                 // Дополнительная проверка для текстового поля имени
                 setTimeout(() => {
                     if (this.currentQuestion === 0) {
+                        this.setupNameInputListener();
                         const nameInput = document.getElementById('nameInput');
                         if (nameInput) {
                             // Принудительно обновляем навигацию при загрузке
@@ -861,6 +862,35 @@
                 }
             }
 
+            setupNameInputListener() {
+                const nameInput = document.getElementById('nameInput');
+                if (nameInput) {
+                    console.log('Setting up name input listener');
+                    
+                    // Удаляем старые обработчики если есть
+                    nameInput.removeEventListener('input', this.handleNameInput);
+                    nameInput.removeEventListener('keyup', this.handleNameInput);
+                    nameInput.removeEventListener('change', this.handleNameInput);
+                    
+                    // Добавляем новые обработчики
+                    nameInput.addEventListener('input', this.handleNameInput.bind(this));
+                    nameInput.addEventListener('keyup', this.handleNameInput.bind(this));
+                    nameInput.addEventListener('change', this.handleNameInput.bind(this));
+                    
+                    console.log('Name input listeners added');
+                } else {
+                    console.log('Name input not found, retrying...');
+                    // Повторяем попытку через небольшую задержку
+                    setTimeout(() => this.setupNameInputListener(), 100);
+                }
+            }
+            
+            handleNameInput(e) {
+                console.log('Name input event:', e.type, e.target.value);
+                this.answers['q0'] = e.target.value;
+                this.updateNavigation();
+            }
+
             setupEventListeners() {
                 // Обработка выбора ответов
                 document.querySelectorAll('.option input[type="radio"]').forEach(radio => {
@@ -870,24 +900,7 @@
                 });
 
                 // Обработка текстового поля имени
-                const nameInput = document.getElementById('nameInput');
-                if (nameInput) {
-                    nameInput.addEventListener('input', (e) => {
-                        this.answers['q0'] = e.target.value;
-                        this.updateNavigation();
-                    });
-                    
-                    // Дополнительная обработка для надежности
-                    nameInput.addEventListener('keyup', (e) => {
-                        this.answers['q0'] = e.target.value;
-                        this.updateNavigation();
-                    });
-                    
-                    nameInput.addEventListener('change', (e) => {
-                        this.answers['q0'] = e.target.value;
-                        this.updateNavigation();
-                    });
-                }
+                this.setupNameInputListener();
 
                 // Навигация
                 document.getElementById('nextBtn').addEventListener('click', (e) => {
