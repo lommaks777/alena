@@ -1089,9 +1089,9 @@
             updateNavigation() {
                 const prevBtn = document.getElementById('prevBtn');
                 const nextBtn = document.getElementById('nextBtn');
-                
+
                 prevBtn.disabled = this.currentQuestion === 0;
-                
+
                 let currentAnswer;
                 if (this.currentQuestion === 0) {
                     // Для вопроса 0 (имя) проверяем текстовое поле
@@ -1101,30 +1101,28 @@
                 } else {
                     currentAnswer = this.answers[`q${this.currentQuestion}`];
                 }
-                
+
                 const hasAnswer = currentAnswer && currentAnswer.length > 0;
-                
+
                 // Принудительно обновляем состояние кнопки
                 if (hasAnswer) {
                     nextBtn.disabled = false;
-                    nextBtn.style.opacity = '1';
-                    nextBtn.style.cursor = 'pointer';
+                    nextBtn.classList.add('active');
                     nextBtn.classList.remove('disabled');
                 } else {
                     nextBtn.disabled = true;
-                    nextBtn.style.opacity = '0.5';
-                    nextBtn.style.cursor = 'not-allowed';
+                    nextBtn.classList.remove('active');
                     nextBtn.classList.add('disabled');
                 }
-                
+
                 console.log('Navigation update:', {
                     currentQuestion: this.currentQuestion,
                     currentAnswer: currentAnswer,
                     hasAnswer: hasAnswer,
                     nextBtnDisabled: nextBtn.disabled,
-                    nextBtnOpacity: nextBtn.style.opacity
+                    nextBtnHasActive: nextBtn.classList.contains('active')
                 });
-                
+
                 if (this.currentQuestion === this.totalQuestions && hasAnswer) {
                     nextBtn.textContent = 'Завершить →';
                 } else {
