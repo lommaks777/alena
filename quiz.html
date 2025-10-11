@@ -171,6 +171,12 @@
             cursor: not-allowed;
             transform: none;
         }
+        
+        .btn.disabled {
+            background: #ccc !important;
+            cursor: not-allowed !important;
+            opacity: 0.5 !important;
+        }
 
         .result-container {
             display: none;
@@ -1058,13 +1064,26 @@
                 }
                 
                 const hasAnswer = currentAnswer && currentAnswer.length > 0;
-                nextBtn.disabled = !hasAnswer;
+                
+                // Принудительно обновляем состояние кнопки
+                if (hasAnswer) {
+                    nextBtn.disabled = false;
+                    nextBtn.style.opacity = '1';
+                    nextBtn.style.cursor = 'pointer';
+                    nextBtn.classList.remove('disabled');
+                } else {
+                    nextBtn.disabled = true;
+                    nextBtn.style.opacity = '0.5';
+                    nextBtn.style.cursor = 'not-allowed';
+                    nextBtn.classList.add('disabled');
+                }
                 
                 console.log('Navigation update:', {
                     currentQuestion: this.currentQuestion,
                     currentAnswer: currentAnswer,
                     hasAnswer: hasAnswer,
-                    nextBtnDisabled: nextBtn.disabled
+                    nextBtnDisabled: nextBtn.disabled,
+                    nextBtnOpacity: nextBtn.style.opacity
                 });
                 
                 if (this.currentQuestion === this.totalQuestions && hasAnswer) {
