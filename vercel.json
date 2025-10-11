@@ -1,4 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "echo Skipping custom production guard"
+  "buildCommand": "echo Build ready",
+  "outputDirectory": ".",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
