@@ -650,10 +650,6 @@
                 
                 <form id="bookingForm">
                     <div class="form-group">
-                        <label for="name">Ваше имя:</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
                         <label for="telegram">Ник в Telegram:</label>
                         <input type="text" id="telegram" name="telegram" placeholder="@username" required>
                     </div>
@@ -1249,7 +1245,7 @@
             }
 
             async showCountdown(resultContent) {
-                const countdownDuration = 15; // 15 секунд обратного отсчета
+                const countdownDuration = 30; // 30 секунд обратного отсчета
                 
                 for (let i = countdownDuration; i > 0; i--) {
                     resultContent.innerHTML = `
@@ -1510,7 +1506,7 @@
                     const message = `
 🎯 Новая заявка на бесплатную сессию!
 
-👤 Имя: ${data.name}
+👤 Имя: ${this.answers['q0'] || 'Не указано'}
 📱 Telegram: ${data.telegram}
 💬 Сообщение: ${data.message}
 
