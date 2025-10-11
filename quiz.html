@@ -1170,9 +1170,17 @@
             displayResult(resultType) {
                 const resultContent = document.getElementById('resultContent');
                 
+                console.log('Displaying result for type:', resultType);
+                console.log('Available advice keys:', Object.keys(this.advice));
+                console.log('Available suggestions keys:', Object.keys(this.suggestions));
+                console.log('Available results keys:', Object.keys(this.results));
+                
                 const description = this.advice[resultType];
                 const suggestion = this.suggestions[resultType];
                 const userName = this.answers['q0'] || 'Имя';
+                
+                console.log('Description:', description);
+                console.log('Suggestion:', suggestion);
                 
                 resultContent.innerHTML = `
                     <div class="result-title">${this.results[resultType]}</div>
