@@ -1443,15 +1443,24 @@
 
             calculateResult() {
                 const answerCounts = { A: 0, B: 0, C: 0, D: 0 };
-                
-                Object.values(this.answers).forEach(answer => {
-                    answerCounts[answer]++;
+
+                Object.entries(this.answers).forEach(([questionId, answer]) => {
+                    if (questionId === 'q0') {
+                        return;
+                    }
+                    if (answerCounts.hasOwnProperty(answer)) {
+                        answerCounts[answer]++;
+                    }
                 });
-                
-                // Находим наиболее частый ответ
-                const maxCount = Math.max(...Object.values(answerCounts));
+
+                const counts = Object.values(answerCounts);
+                if (counts.every(count => count === 0)) {
+                    return 'A';
+                }
+
+                const maxCount = Math.max(...counts);
                 const dominantAnswers = Object.keys(answerCounts).filter(key => answerCounts[key] === maxCount);
-                
+
                 return dominantAnswers[0];
             }
 
@@ -1488,6 +1497,10 @@
                 
                 // Отправка в Telegram бот
                 try {
+                    const userName = this.answers['q0'] || 'Не указано';
+                    const userTelegram = data.telegram || 'Не указан';
+                    const additionalMessage = data.message?.trim() || 'Не указано';
+
                     const botToken = '7329587114:AAFS0uK7roRVwwHB9c9w4-W6eKJlAaOUZkY';
                     const chatId = '684726097'; // Ваш Chat ID
                     
@@ -1510,9 +1523,9 @@
                     const message = `
 🎯 Новая заявка на бесплатную сессию!
 
-👤 Имя: ${this.answers['q0'] || 'Не указано'}
-📱 Telegram: ${data.telegram}
-💬 Сообщение: ${data.message}
+👤 Имя: ${userName}
+📱 Telegram: ${userTelegram}
+💬 Сообщение: ${additionalMessage}
 
 📊 РЕЗУЛЬТАТ КВИЗА:
 ${resultText}
@@ -1565,12 +1578,16 @@ ${resultText}
                         answersText += `\n${questionText}\nОтвет: ${answerText}\n`;
                     });
                     
+                    const userName = this.answers['q0'] || 'Не указано';
+                    const userTelegram = data.telegram || 'Не указан';
+                    const additionalMessage = data.message?.trim() || 'Не указано';
+
                     const fallbackMessage = `
 🎯 Новая заявка на бесплатную сессию!
 
-👤 Имя: ${data.name}
-📱 Telegram: ${data.telegram}
-💬 Сообщение: ${data.message}
+👤 Имя: ${userName}
+📱 Telegram: ${userTelegram}
+💬 Сообщение: ${additionalMessage}
 
 📊 РЕЗУЛЬТАТ КВИЗА:
 ${resultText}
