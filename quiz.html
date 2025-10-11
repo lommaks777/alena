@@ -1238,14 +1238,37 @@
                 });
 
                 if (this.currentQuestion === this.totalQuestions && hasAnswer) {
-                    nextBtn.textContent = 'Завершить →';
+                    nextBtn.textContent = 'Получить план';
                 } else {
                     nextBtn.textContent = 'Далее →';
                 }
             }
 
-            async showCountdown(resultContent) {
-                const countdownDuration = 30; // 30 секунд обратного отсчета
+            async generateResult(payload) {
+                try {
+                    const response = await fetch('/api/generate-result', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data?.result || '';
+                    } else {
+                        console.error('Failed to generate personalised result', await response.text());
+                        return '';
+                    }
+                } catch (error) {
+                    console.error('Error fetching personalised result:', error);
+                    return '';
+                }
+            }
+
+            async showCountdown(resultContent, generationPromise) {
+                const countdownDuration = 20; // 20 секунд обратного отсчета
                 
                 for (let i = countdownDuration; i > 0; i--) {
                     resultContent.innerHTML = `
@@ -1262,11 +1285,11 @@
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
                 
-                // Финальное сообщение перед генерацией
+                // Финальное сообщение перед показом результата
                 resultContent.innerHTML = `
                     <div class="result-loading">
-                        <strong>Генерирую результат...</strong>
-                        <p>Собираю ответы и подбираю рекомендации. Это займёт несколько секунд 💫</p>
+                        <strong>Готово!</strong>
+                        <p>Ваш персональный план готов 💫</p>
                     </div>
                 `;
             }
@@ -1275,9 +1298,6 @@
                 document.getElementById('quizContainer').classList.add('hidden');
                 document.getElementById('resultContainer').classList.add('active');
                 const resultContent = document.getElementById('resultContent');
-
-                // Показываем обратный отсчет
-                await this.showCountdown(resultContent);
 
                 // Обновляем статистику локально
                 this.updateStats();
@@ -1289,32 +1309,21 @@
                     answerTexts: this.answerTexts
                 };
 
+                // Запускаем генерацию и отсчет параллельно
+                const generationPromise = this.generateResult(payload);
+                await this.showCountdown(resultContent, generationPromise);
+
+                // Результат уже готов после завершения отсчета
                 try {
-                    const response = await fetch('/api/generate-result', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    let personalisedText = '';
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        personalisedText = data?.result || '';
-                    } else {
-                        console.error('Failed to generate personalised result', await response.text());
-                    }
-
+                    const personalisedText = await generationPromise;
                     if (personalisedText) {
-                        resultContent.innerHTML = this.personaliseResultLayout(this.answers['q0'] || '', personalisedText);
+                        resultContent.innerHTML = personalisedText;
                     } else {
                         const result = this.calculateResult();
                         this.displayResult(result);
                     }
                 } catch (error) {
-                    console.error('Error fetching personalised result:', error);
+                    console.error('Error with generated result:', error);
                     const fallbackResult = this.calculateResult();
                     this.displayResult(fallbackResult);
                 }
