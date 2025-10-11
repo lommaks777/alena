@@ -201,6 +201,23 @@
             animation: pulse 1.8s ease-in-out infinite;
         }
 
+        .countdown-display {
+            margin: 20px 0;
+        }
+
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+            animation: countdownPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes countdownPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
         @keyframes pulse {
             0% { opacity: 0.6; }
             50% { opacity: 1; }
@@ -1231,18 +1248,40 @@
                 }
             }
 
+            async showCountdown(resultContent) {
+                const countdownDuration = 15; // 15 секунд обратного отсчета
+                
+                for (let i = countdownDuration; i > 0; i--) {
+                    resultContent.innerHTML = `
+                        <div class="result-loading">
+                            <strong>Анализирую ответы...</strong>
+                            <div class="countdown-display">
+                                <div class="countdown-number">${i}</div>
+                                <p>Подождите ${i} секунд</p>
+                            </div>
+                            <p>Формирую персональную стратегию для ${this.answers['q0'] || 'тебя'} 💫</p>
+                        </div>
+                    `;
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                // Финальное сообщение перед генерацией
+                resultContent.innerHTML = `
+                    <div class="result-loading">
+                        <strong>Генерирую результат...</strong>
+                        <p>Собираю ответы и подбираю рекомендации. Это займёт несколько секунд 💫</p>
+                    </div>
+                `;
+            }
+
             async showResults() {
                 document.getElementById('quizContainer').classList.add('hidden');
                 document.getElementById('resultContainer').classList.add('active');
                 const resultContent = document.getElementById('resultContent');
 
-                // Показываем временное сообщение пока ждём персональный ответ
-                resultContent.innerHTML = `
-                    <div class="result-loading">
-                        <strong>Формирую персональную стратегию для ${this.answers['q0'] || 'тебя'}...</strong>
-                        <p>Собираю ответы и подбираю рекомендации. Это займёт несколько секунд 💫</p>
-                    </div>
-                `;
+                // Показываем обратный отсчет
+                await this.showCountdown(resultContent);
 
                 // Обновляем статистику локально
                 this.updateStats();
