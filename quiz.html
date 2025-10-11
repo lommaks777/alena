@@ -536,7 +536,7 @@
             <div class="navigation">
                 <button class="btn" id="prevBtn" disabled>← Назад</button>
                 <span id="questionCounter">1 из 9</span>
-                <button class="btn" id="nextBtn" onclick="window.quiz && window.quiz.nextQuestion()">Далее →</button>
+                <button class="btn" id="nextBtn" onclick="if(window.quiz) { window.quiz.nextQuestion(); return false; }">Далее →</button>
             </div>
         </div>
 
@@ -1007,7 +1007,21 @@
                     const nameInput = document.getElementById('nameInput');
                     if (nameInput) {
                         this.answers['q0'] = nameInput.value.trim();
+                        console.log('Saved name:', this.answers['q0']);
                     }
+                }
+                
+                // Проверяем, есть ли ответ
+                let hasAnswer = false;
+                if (this.currentQuestion === 0) {
+                    hasAnswer = this.answers['q0'] && this.answers['q0'].length > 0;
+                } else {
+                    hasAnswer = this.answers[`q${this.currentQuestion}`];
+                }
+                
+                if (!hasAnswer) {
+                    console.log('No answer provided, cannot proceed');
+                    return;
                 }
                 
                 if (this.currentQuestion < this.totalQuestions) {
