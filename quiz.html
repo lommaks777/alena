@@ -774,7 +774,7 @@
                 this.updateProgress();
                 this.updateNavigation();
                 
-                // Дополнительная проверка для текстового поля имени
+                // Дополнительная проверка для текстового поля имени и кнопок
                 setTimeout(() => {
                     if (this.currentQuestion === 0) {
                         this.setupNameInputListener();
@@ -783,6 +783,14 @@
                             // Принудительно обновляем навигацию при загрузке
                             this.updateNavigation();
                         }
+                    }
+                    
+                    // Дополнительная настройка кнопки "Далее"
+                    const nextBtn = document.getElementById('nextBtn');
+                    if (nextBtn) {
+                        nextBtn.removeEventListener('click', this.handleNextClick);
+                        nextBtn.addEventListener('click', this.handleNextClick.bind(this));
+                        console.log('Next button listener re-added in init');
                     }
                 }, 100);
             }
@@ -890,6 +898,13 @@
                 this.answers['q0'] = e.target.value;
                 this.updateNavigation();
             }
+            
+            handleNextClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Next button clicked via handleNextClick');
+                this.nextQuestion();
+            }
 
             setupEventListeners() {
                 // Обработка выбора ответов
@@ -903,12 +918,17 @@
                 this.setupNameInputListener();
 
                 // Навигация
-                document.getElementById('nextBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Next button clicked via event listener');
-                    this.nextQuestion();
-                });
+                const nextBtn = document.getElementById('nextBtn');
+                if (nextBtn) {
+                    // Удаляем старые обработчики если есть
+                    nextBtn.removeEventListener('click', this.handleNextClick);
+                    
+                    // Добавляем новый обработчик
+                    nextBtn.addEventListener('click', this.handleNextClick.bind(this));
+                    console.log('Next button event listener added');
+                } else {
+                    console.log('Next button not found');
+                }
                 document.getElementById('prevBtn').addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
