@@ -1090,7 +1090,16 @@
                 const prevBtn = document.getElementById('prevBtn');
                 const nextBtn = document.getElementById('nextBtn');
 
-                prevBtn.disabled = this.currentQuestion === 0;
+                // Обновляем состояние кнопки "Назад"
+                if (this.currentQuestion === 0) {
+                    prevBtn.disabled = true;
+                    prevBtn.classList.remove('active');
+                    prevBtn.classList.add('disabled');
+                } else {
+                    prevBtn.disabled = false;
+                    prevBtn.classList.add('active');
+                    prevBtn.classList.remove('disabled');
+                }
 
                 let currentAnswer;
                 if (this.currentQuestion === 0) {
@@ -1104,7 +1113,7 @@
 
                 const hasAnswer = currentAnswer && currentAnswer.length > 0;
 
-                // Принудительно обновляем состояние кнопки
+                // Принудительно обновляем состояние кнопки "Далее"
                 if (hasAnswer) {
                     nextBtn.disabled = false;
                     nextBtn.classList.add('active');
@@ -1119,6 +1128,8 @@
                     currentQuestion: this.currentQuestion,
                     currentAnswer: currentAnswer,
                     hasAnswer: hasAnswer,
+                    prevBtnDisabled: prevBtn.disabled,
+                    prevBtnHasActive: prevBtn.classList.contains('active'),
                     nextBtnDisabled: nextBtn.disabled,
                     nextBtnHasActive: nextBtn.classList.contains('active')
                 });
