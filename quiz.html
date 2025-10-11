@@ -536,7 +536,7 @@
             <div class="navigation">
                 <button class="btn" id="prevBtn" disabled>← Назад</button>
                 <span id="questionCounter">1 из 9</span>
-                <button class="btn" id="nextBtn" onclick="if(window.quiz) { window.quiz.nextQuestion(); return false; }">Далее →</button>
+                <button class="btn" id="nextBtn">Далее →</button>
             </div>
         </div>
 
@@ -909,6 +909,21 @@
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Next button clicked via handleNextClick');
+                
+                // Проверяем, есть ли ответ перед переходом
+                let hasAnswer = false;
+                if (this.currentQuestion === 0) {
+                    const nameInput = document.getElementById('nameInput');
+                    hasAnswer = nameInput && nameInput.value.trim().length > 0;
+                } else {
+                    hasAnswer = this.answers[`q${this.currentQuestion}`];
+                }
+                
+                if (!hasAnswer) {
+                    console.log('No answer provided, cannot proceed');
+                    return;
+                }
+                
                 this.nextQuestion();
             }
 
@@ -929,8 +944,18 @@
                     // Удаляем старые обработчики если есть
                     nextBtn.removeEventListener('click', this.handleNextClick);
                     
-                    // Добавляем новый обработчик
-                    nextBtn.addEventListener('click', this.handleNextClick.bind(this));
+                    // Добавляем новый обработчик с принудительным bind
+                    const boundHandler = this.handleNextClick.bind(this);
+                    nextBtn.addEventListener('click', boundHandler);
+                    
+                    // Дополнительно добавляем обработчик через onclick для надежности
+                    nextBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Next button clicked via onclick');
+                        this.handleNextClick(e);
+                    };
+                    
                     console.log('Next button event listener added');
                 } else {
                     console.log('Next button not found');
