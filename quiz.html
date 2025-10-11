@@ -784,7 +784,8 @@
                         completionRate: 0,
                         avgTime: 0,
                         results: { A: 0, B: 0, C: 0, D: 0 },
-                        questions: {}
+                        questions: {},
+                        userResponses: [] // Массив для хранения ответов всех пользователей
                     };
                     localStorage.setItem('quizStats', JSON.stringify(initialStats));
                 }
@@ -811,6 +812,26 @@
                         }
                         stats.questions[questionId][answer] = (stats.questions[questionId][answer] || 0) + 1;
                     });
+                    
+                    // Сохраняем ответы пользователя
+                    const userName = this.answers['q0'] || 'Аноним';
+                    const userResponse = {
+                        id: Date.now(), // Уникальный ID
+                        name: userName,
+                        timestamp: new Date().toISOString(),
+                        result: result,
+                        answers: { ...this.answers }
+                    };
+                    
+                    if (!stats.userResponses) {
+                        stats.userResponses = [];
+                    }
+                    stats.userResponses.push(userResponse);
+                    
+                    // Ограничиваем количество сохраненных ответов (последние 1000)
+                    if (stats.userResponses.length > 1000) {
+                        stats.userResponses = stats.userResponses.slice(-1000);
+                    }
                     
                     // Обновляем среднее время
                     const timeSpent = (Date.now() - this.startTime) / 1000 / 60; // в минутах
