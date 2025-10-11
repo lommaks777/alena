@@ -181,45 +181,132 @@
         .result-container {
             display: none;
             padding: 40px 30px;
-            text-align: center;
         }
 
         .result-container.active {
             display: block;
         }
 
-        .result-title {
-            color: #2c3e50;
-            font-size: 2rem;
-            margin-bottom: 20px;
+        #resultContent {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .result-loading {
+            background: rgba(102, 126, 234, 0.12);
+            border-radius: 22px;
+            padding: 28px;
+            text-align: center;
+            color: #3d3d6b;
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.7;
+            animation: pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .ai-result {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.18), rgba(118, 75, 162, 0.1));
+            border-radius: 26px;
+            padding: 34px;
+            box-shadow: 0 24px 48px rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.24);
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .ai-result__hero {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .ai-result__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.85);
+            color: #4650a3;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            align-self: flex-start;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.18);
+        }
+
+        .ai-result__title {
+            font-size: 1.9rem;
             font-weight: 700;
+            color: #202a64;
         }
 
-        .result-description {
-            color: #555;
-            font-size: 1rem;
-            line-height: 1.5;
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-            text-align: left;
+        .ai-result__subtitle {
+            font-size: 1.15rem;
+            color: #5b63a5;
+            font-weight: 600;
         }
 
-        .advice {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: left;
+        .ai-result__hero p {
+            margin: 0;
+            line-height: 1.75;
+            color: #353b61;
         }
 
-        .advice h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
+        .ai-result__section {
+            background: #ffffff;
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 18px 40px rgba(102, 126, 234, 0.14);
+            border: 1px solid rgba(102, 126, 234, 0.14);
+        }
+
+        .ai-result__section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #4650a3;
+            margin-bottom: 14px;
+        }
+
+        .ai-result__section p {
+            margin-bottom: 12px;
+            line-height: 1.75;
+            color: #353b61;
+        }
+
+        .ai-result__list {
+            margin: 10px 0 0 0;
+            padding-left: 22px;
+            color: #2f356b;
+            line-height: 1.7;
+        }
+
+        .ai-result__list li {
+            margin-bottom: 8px;
+        }
+
+        .ai-result__cta {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 28px;
+            border-radius: 26px;
+            text-align: center;
+            font-size: 1.12rem;
+            line-height: 1.8;
+            box-shadow: 0 26px 48px rgba(238, 90, 36, 0.28);
+        }
+
+        .ai-result__cta strong {
+            display: block;
+            margin-top: 12px;
+            font-size: 1.22rem;
         }
 
         .booking-form {
@@ -1144,24 +1231,172 @@
             async showResults() {
                 document.getElementById('quizContainer').classList.add('hidden');
                 document.getElementById('resultContainer').classList.add('active');
-                
-                const result = this.calculateResult();
-                this.displayResult(result);
+                const resultContent = document.getElementById('resultContent');
 
-                // Обновляем статистику
+                // Показываем временное сообщение пока ждём персональный ответ
+                resultContent.innerHTML = `
+                    <div class="result-loading">
+                        <strong>Формирую персональную стратегию для ${this.answers['q0'] || 'тебя'}...</strong>
+                        <p>Собираю ответы и подбираю рекомендации. Это займёт несколько секунд 💫</p>
+                    </div>
+                `;
+
+                // Обновляем статистику локально
                 this.updateStats();
 
+                const payload = {
+                    name: this.answers['q0'] || '',
+                    answers: this.answers,
+                    questionTexts: this.questionTexts,
+                    answerTexts: this.answerTexts
+                };
+
+                try {
+                    const response = await fetch('/api/generate-result', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    let personalisedText = '';
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        personalisedText = data?.result || '';
+                    } else {
+                        console.error('Failed to generate personalised result', await response.text());
+                    }
+
+                    if (personalisedText) {
+                        resultContent.innerHTML = personaliseResultLayout(this.answers['q0'] || '', personalisedText);
+                    } else {
+                        const result = this.calculateResult();
+                        this.displayResult(result);
+                    }
+                } catch (error) {
+                    console.error('Error fetching personalised result:', error);
+                    const fallbackResult = this.calculateResult();
+                    this.displayResult(fallbackResult);
+                }
+
+                // Отправляем ответы автору
                 try {
                     await fetch('/api/submit', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ answers: this.answers, result: result })
+                        body: JSON.stringify({ answers: this.answers, result: this.calculateResult() })
                     });
                 } catch (error) {
                     console.error('Error submitting answers:', error);
                 }
+            }
+
+            function personaliseResultLayout(name, rawText) {
+                const safeName = name || 'ты';
+
+                try {
+                    const payload = JSON.parse(rawText);
+                    if (payload && payload.blocks) {
+                        return renderStructuredLayout(safeName, payload.blocks);
+                    }
+                } catch (e) {
+                    console.warn('AI response is not JSON, fallback to text parsing');
+                }
+
+                const sections = rawText.split(/\n\n+/);
+                return sections.map(section => {
+                    const trimmed = section.trim();
+                    if (!trimmed) {
+                        return '';
+                    }
+                    if (/^[-•]/.test(trimmed)) {
+                        return `<li class="ai-result__list-item">${trimmed.replace(/^[-•]\s*/, '')}</li>`;
+                    }
+                    if (/^[✨🌅🌑🌊✈️🚀💡📘👣🔹]/.test(trimmed)) {
+                        return `<h3>${trimmed}</h3>`;
+                    }
+                    if (trimmed.startsWith('ИМЯ')) {
+                        return `<p><strong>${safeName}</strong>${trimmed.replace('ИМЯ', '').trim()}</p>`;
+                    }
+                    return `<p>${trimmed}</p>`;
+                }).join('');
+            }
+
+            function renderStructuredLayout(name, blocks) {
+                const parts = blocks.map(block => {
+                    switch (block.type) {
+                        case 'hero':
+                            return `
+                                <section class="ai-result">
+                                    ${renderHeroContent(block, name)}
+                                </section>
+                            `;
+                        case 'section':
+                            return `
+                                <section class="ai-result__section">
+                                    ${block.heading ? `<div class="ai-result__section-title">${escapeHtml(block.heading)}</div>` : ''}
+                                    ${renderSectionContent(block)}
+                                </section>
+                            `;
+                        case 'cta':
+                            return `
+                                <section class="ai-result__cta">
+                                    ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ''}
+                                    ${block.highlight ? `<strong>${escapeHtml(block.highlight)}</strong>` : ''}
+                                </section>
+                            `;
+                        default:
+                            return '';
+                    }
+                }).join('');
+
+                return `<div class="ai-result">${parts}</div>`;
+            }
+
+            function renderHeroContent(block, name) {
+                const parts = [];
+                parts.push('<div class="ai-result__hero">');
+                if (block.badge) {
+                    parts.push(`<div class="ai-result__badge">${escapeHtml(block.badge)}</div>`);
+                }
+                if (block.title) {
+                    parts.push(`<div class="ai-result__title">${escapeHtml(block.title)}</div>`);
+                }
+                if (block.subtitle) {
+                    parts.push(`<div class="ai-result__subtitle">${escapeHtml(block.subtitle).replace('{{name}}', name)}</div>`);
+                }
+                if (block.description) {
+                    parts.push(`<p>${escapeHtml(block.description)}</p>`);
+                }
+                parts.push('</div>');
+                return parts.join('');
+            }
+
+            function renderSectionContent(block) {
+                const lines = [];
+                if (block.paragraphs) {
+                    block.paragraphs.forEach(p => {
+                        lines.push(`<p>${escapeHtml(p).replace('{{name}}', block.name || '')}</p>`);
+                    });
+                }
+                if (block.list && block.list.length) {
+                    const listItems = block.list.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+                    lines.push(`<ul class="ai-result__list">${listItems}</ul>`);
+                }
+                return lines.join('');
+            }
+
+            function escapeHtml(text) {
+                return text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
             }
 
             calculateResult() {
