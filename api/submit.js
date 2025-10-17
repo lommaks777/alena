@@ -1,6 +1,14 @@
-// Vercel serverless function
-import { readFile, writeFile } from 'fs/promises';
-import { join } from 'path';
+// Vercel serverless function with Supabase integration
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+let supabase = null;
+if (supabaseUrl && supabaseKey) {
+    supabase = createClient(supabaseUrl, supabaseKey);
+}
 
 export default async function handler(req, res) {
     // Enable CORS
@@ -19,39 +27,47 @@ export default async function handler(req, res) {
     }
 
     try {
-        const newAnswers = req.body;
-        console.log('Received answers:', newAnswers);
+        const { answers, result } = req.body;
+        console.log('Received submission:', { answers, result });
         
-        // Путь к файлу с ответами
-        const answersFilePath = join(process.cwd(), 'answers.json');
-        
-        // Читаем существующие данные
-        let allAnswers = [];
-        try {
-            const data = await readFile(answersFilePath, 'utf8');
-            allAnswers = JSON.parse(data);
-        } catch (error) {
-            // Если файл не существует, начинаем с пустого массива
-            if (error.code !== 'ENOENT') {
-                throw error;
-            }
+        // Check if Supabase is configured
+        if (!supabase) {
+            console.warn('Supabase not configured. Skipping database storage.');
+            return res.status(200).json({ 
+                message: 'Answers received (database not configured)',
+                warning: 'Supabase credentials not found'
+            });
         }
         
-        // Добавляем новые ответы с временной меткой
-        const answersWithTimestamp = {
-            ...newAnswers,
-            timestamp: new Date().toISOString(),
-            id: `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        // Extract data from answers
+        const name = answers.q0 || 'Anonymous';
+        const concern = answers.q10 || null;
+        
+        // Prepare data for Supabase
+        const quizData = {
+            name: name,
+            result: result,
+            answers: answers,
+            concern: concern,
+            created_at: new Date().toISOString()
         };
         
-        allAnswers.push(answersWithTimestamp);
+        // Insert into Supabase
+        const { data, error } = await supabase
+            .from('quiz_responses')
+            .insert([quizData])
+            .select();
         
-        // Сохраняем обновленные данные
-        await writeFile(answersFilePath, JSON.stringify(allAnswers, null, 2), 'utf8');
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
+        
+        console.log('Successfully saved to Supabase:', data);
         
         res.status(200).json({ 
             message: 'Answers submitted successfully',
-            data: answersWithTimestamp
+            data: data[0]
         });
     } catch (error) {
         console.error('Error submitting answers:', error);
