@@ -395,31 +395,64 @@
 
             async loadStats() {
                 try {
-                    // Загружаем реальные данные из localStorage
+                    // Загружаем данные с сервера
+                    const response = await fetch('/api/stats');
+                    if (!response.ok) {
+                        throw new Error('Ошибка загрузки данных');
+                    }
+                    
+                    const serverData = await response.json();
+                    
+                    // Преобразуем данные в нужный формат
+                    this.stats = {
+                        totalResponses: serverData.totalResponses || 0,
+                        uniqueUsers: serverData.totalResponses || 0, // Считаем каждый ответ уникальным
+                        completionRate: serverData.totalResponses > 0 ? 100 : 0,
+                        avgTime: 0, // Можно добавить позже
+                        results: serverData.resultsDistribution || { A: 0, B: 0, C: 0, D: 0 },
+                        questions: serverData.answersDistribution || {},
+                        userResponses: [] // Будет загружено отдельно
+                    };
+                    
+                    // Загружаем полные ответы пользователей
+                    await this.loadUserResponses();
+                } catch (error) {
+                    console.error('Ошибка загрузки статистики:', error);
+                    // Fallback на localStorage
                     const storedData = localStorage.getItem('quizStats');
                     if (storedData) {
                         this.stats = JSON.parse(storedData);
                     } else {
-                        // Если данных нет, показываем нули
                         this.stats = {
                             totalResponses: 0,
                             uniqueUsers: 0,
                             completionRate: 0,
                             avgTime: 0,
                             results: { A: 0, B: 0, C: 0, D: 0 },
-                            questions: {}
+                            questions: {},
+                            userResponses: []
                         };
                     }
+                }
+            }
+
+            async loadUserResponses() {
+                try {
+                    // Читаем файл answers.json напрямую (для демонстрации)
+                    // В продакшене лучше создать отдельный API endpoint
+                    const response = await fetch('/answers.json');
+                    if (response.ok) {
+                        const allAnswers = await response.json();
+                        this.stats.userResponses = allAnswers.map(entry => ({
+                            name: entry.answers?.q0 || 'Аноним',
+                            timestamp: entry.timestamp,
+                            result: entry.result,
+                            answers: entry.answers
+                        }));
+                    }
                 } catch (error) {
-                    console.error('Ошибка загрузки статистики:', error);
-                    this.stats = {
-                        totalResponses: 0,
-                        uniqueUsers: 0,
-                        completionRate: 0,
-                        avgTime: 0,
-                        results: { A: 0, B: 0, C: 0, D: 0 },
-                        questions: {}
-                    };
+                    console.log('Не удалось загрузить ответы пользователей:', error);
+                    this.stats.userResponses = [];
                 }
             }
 

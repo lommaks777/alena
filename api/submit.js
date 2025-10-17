@@ -1,4 +1,7 @@
 // Vercel serverless function
+import { readFile, writeFile } from 'fs/promises';
+import { join } from 'path';
+
 export default async function handler(req, res) {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -17,16 +20,44 @@ export default async function handler(req, res) {
 
     try {
         const newAnswers = req.body;
-        
-        // For now, just return success - we'll handle storage later
         console.log('Received answers:', newAnswers);
+        
+        // Путь к файлу с ответами
+        const answersFilePath = join(process.cwd(), 'answers.json');
+        
+        // Читаем существующие данные
+        let allAnswers = [];
+        try {
+            const data = await readFile(answersFilePath, 'utf8');
+            allAnswers = JSON.parse(data);
+        } catch (error) {
+            // Если файл не существует, начинаем с пустого массива
+            if (error.code !== 'ENOENT') {
+                throw error;
+            }
+        }
+        
+        // Добавляем новые ответы с временной меткой
+        const answersWithTimestamp = {
+            ...newAnswers,
+            timestamp: new Date().toISOString(),
+            id: `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        };
+        
+        allAnswers.push(answersWithTimestamp);
+        
+        // Сохраняем обновленные данные
+        await writeFile(answersFilePath, JSON.stringify(allAnswers, null, 2), 'utf8');
         
         res.status(200).json({ 
             message: 'Answers submitted successfully',
-            data: newAnswers
+            data: answersWithTimestamp
         });
     } catch (error) {
         console.error('Error submitting answers:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ 
+            message: 'Internal Server Error',
+            error: error.message 
+        });
     }
 }

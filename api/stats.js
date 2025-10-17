@@ -1,21 +1,32 @@
-const express = require('express');
-const fs = require('fs').promises;
-const path = require('path');
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
-const app = express();
+export default async function handler(req, res) {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-const answersFilePath = path.join(process.cwd(), 'answers.json');
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
 
-app.get('/api/stats', async (req, res) => {
+    if (req.method !== 'GET') {
+        return res.status(405).json({ message: 'Method not allowed' });
+    }
+
+    const answersFilePath = join(process.cwd(), 'answers.json');
     try {
         let allAnswers = [];
         try {
-            const data = await fs.readFile(answersFilePath, 'utf8');
+            const data = await readFile(answersFilePath, 'utf8');
             allAnswers = JSON.parse(data);
         } catch (error) {
             if (error.code === 'ENOENT') {
                 // Если файл не найден, возвращаем пустую статистику
-                return res.json({
+                return res.status(200).json({
                     totalResponses: 0,
                     resultsDistribution: {},
                     answersDistribution: {}
@@ -44,7 +55,7 @@ app.get('/api/stats', async (req, res) => {
             return acc;
         }, {});
 
-        res.json({
+        res.status(200).json({
             totalResponses,
             resultsDistribution,
             answersDistribution
@@ -54,6 +65,4 @@ app.get('/api/stats', async (req, res) => {
         console.error('Error fetching stats:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-});
-
-module.exports = app;
+}
