@@ -107,7 +107,7 @@ function buildFallbackResult({ name = '', answers = {}, questionTexts = {}, answ
         : '';
 
     return `
-<h2 class="section-title">Где вы сейчас</h2>
+<h2 class="section-title">Где ты сейчас</h2>
 <p><strong>${stageTitle}</strong></p>
 <p>${safeName}, ${escapeHtml(content.now)}</p>
 <h2 class="section-title">Что сейчас важно</h2>
@@ -171,8 +171,8 @@ module.exports = async function handler(req, res) {
 
 Шестиблочная структура:
 
-Блок 1: <h2 class="section-title">Где вы сейчас</h2>
-(Где вы сейчас)
+Блок 1: <h2 class="section-title">Где ты сейчас</h2>
+(Где ты сейчас)
 
 Блок 2: <h2 class="section-title">Что сейчас важно</h2>
 (Что важно сейчас)
@@ -188,6 +188,8 @@ module.exports = async function handler(req, res) {
 
 Блок 6: <h2 class="section-title">Что дальше? Давай поговорим</h2>
 (Что дальше? Давай поговорим - конверсионный блок)
+
+ВАЖНО: Верни ТОЛЬКО чистый HTML без markdown-тегов. НЕ используй тройные кавычки для оборачивания кода. Начинай сразу с <h2> тега.
 
 Пример текста конверсионного блока:
 "${safeName}, эти рекомендации — первый шаг. На нашей бесплатной дружеской встрече мы сможем вместе составить твой личный, пошаговый план. Это просто тёплый разговор, который поможет тебе найти ясность. Заполни форму ниже, и давай созвонимся!"
@@ -236,13 +238,16 @@ ${formattedAnswers || 'Ответы не заполнены'}
         }
 
         const data = await openaiResponse.json();
-        const result = data?.choices?.[0]?.message?.content?.trim();
+        let result = data?.choices?.[0]?.message?.content?.trim();
 
         if (!result) {
             const fallbackResult = buildFallbackResult({ name, answers, questionTexts, answerTexts });
             res.status(200).json({ result: fallbackResult, warning: 'empty' });
             return;
         }
+
+        // Удаляем markdown-теги если они есть
+        result = result.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
 
         res.status(200).json({ result });
     } catch (error) {
