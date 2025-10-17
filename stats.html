@@ -395,7 +395,7 @@
 
             async loadStats() {
                 try {
-                    // Загружаем данные с сервера
+                    // Загружаем данные с сервера (включая recentResponses из Supabase)
                     const response = await fetch('/api/stats');
                     if (!response.ok) {
                         throw new Error('Ошибка загрузки данных');
@@ -403,7 +403,7 @@
                     
                     const serverData = await response.json();
                     
-                    // Преобразуем данные в нужный формат
+                    // Преобразуем данные в нужный формат, включая userResponses из Supabase
                     this.stats = {
                         totalResponses: serverData.totalResponses || 0,
                         uniqueUsers: serverData.totalResponses || 0, // Считаем каждый ответ уникальным
@@ -411,11 +411,13 @@
                         avgTime: 0, // Можно добавить позже
                         results: serverData.resultsDistribution || { A: 0, B: 0, C: 0, D: 0 },
                         questions: serverData.answersDistribution || {},
-                        userResponses: [] // Будет загружено отдельно
+                        userResponses: (serverData.recentResponses || []).map(r => ({
+                            name: r.name || 'Аноним',
+                            timestamp: r.created_at,
+                            result: r.result,
+                            answers: r.answers || {}
+                        }))
                     };
-                    
-                    // Загружаем полные ответы пользователей
-                    await this.loadUserResponses();
                 } catch (error) {
                     console.error('Ошибка загрузки статистики:', error);
                     // Fallback на localStorage
@@ -436,25 +438,7 @@
                 }
             }
 
-            async loadUserResponses() {
-                try {
-                    // Читаем файл answers.json напрямую (для демонстрации)
-                    // В продакшене лучше создать отдельный API endpoint
-                    const response = await fetch('/answers.json');
-                    if (response.ok) {
-                        const allAnswers = await response.json();
-                        this.stats.userResponses = allAnswers.map(entry => ({
-                            name: entry.answers?.q0 || 'Аноним',
-                            timestamp: entry.timestamp,
-                            result: entry.result,
-                            answers: entry.answers
-                        }));
-                    }
-                } catch (error) {
-                    console.log('Не удалось загрузить ответы пользователей:', error);
-                    this.stats.userResponses = [];
-                }
-            }
+            // loadUserResponses() method removed - data now comes directly from /api/stats as recentResponses
 
             displayStats() {
                 document.getElementById('loading').style.display = 'none';
