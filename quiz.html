@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Квиз: Стадия адаптации в новой стране</title>
-    <!-- 
-    ИНСТРУКЦИЯ ПО НАСТРОЙКЕ TELEGRAM БОТА:
-    1. Замените 'YOUR_CHAT_ID' на ваш Chat ID
-    2. Получить Chat ID: напишите боту @userinfobot команду /start
-    3. Скопируйте ваш ID и вставьте вместо 'YOUR_CHAT_ID'
-    -->
     <style>
         * {
             margin: 0;
@@ -505,7 +499,7 @@
             </div>
 
             <div class="question active" data-question="1">
-                <h3>1. Срок проживания — «Сколько времени вы живёте в новой стране?»</h3>
+                <h3>1. Сколько времени вы живёте в новой стране?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q1" value="A">
@@ -527,7 +521,7 @@
             </div>
 
             <div class="question" data-question="2">
-                <h3>2. Ваши главные ощущения — «Как вы чаще всего себя чувствуете?»</h3>
+                <h3>2. Как вы чаще всего себя чувствуете?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q2" value="A">
@@ -549,7 +543,7 @@
             </div>
 
             <div class="question" data-question="3">
-                <h3>3. Проблемы с самореализацией — «Как обстоят дела с работой и самореализацией?»</h3>
+                <h3>3. Как обстоят дела с работой и самореализацией?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q3" value="A">
@@ -571,7 +565,7 @@
             </div>
 
             <div class="question" data-question="4">
-                <h3>4. Социальные связи — «Как обстоят дела с друзьями?»</h3>
+                <h3>4. Как обстоят дела с друзьями?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q4" value="A">
@@ -593,7 +587,7 @@
             </div>
 
             <div class="question" data-question="5">
-                <h3>5. Физические реакции — «Как реагирует тело?»</h3>
+                <h3>5. Как реагирует тело?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q5" value="A">
@@ -615,7 +609,7 @@
             </div>
 
             <div class="question" data-question="6">
-                <h3>6. Отношение к будущему — «Когда думаете о будущем…»</h3>
+                <h3>6. Когда думаете о будущем…</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q6" value="A">
@@ -637,7 +631,7 @@
             </div>
 
             <div class="question" data-question="7">
-                <h3>7. Стратегии преодоления — «Как справляетесь с трудностями?»</h3>
+                <h3>7. Как справляетесь с трудностями?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q7" value="A">
@@ -688,7 +682,7 @@
             <div id="resultContent"></div>
             
             <div class="booking-form">
-                <h3>Давайте вместе составим ваш личный план?</h3>
+                <h3>Давай вместе составим ваш личный план?</h3>
                 
                 <!-- Ценностное предложение -->
                 <div style="background: rgba(255,255,255,0.15); padding: 25px; border-radius: 15px; margin: 20px 0;">
@@ -696,17 +690,45 @@
                     <ul style="margin: 0; padding-left: 25px; color: #fff; line-height: 1.8; font-size: 1rem; list-style: none;">
                         <li style="margin-bottom: 15px; display: flex; align-items: start;">
                             <span style="margin-right: 10px; font-size: 1.2rem;">✓</span>
-                            <span><strong>1.</strong> Разберем вашу текущую ситуацию</span>
+                            <span><strong>1.</strong> Разберем твою текущую ситуацию</span>
                         </li>
                         <li style="margin-bottom: 15px; display: flex; align-items: start;">
                             <span style="margin-right: 10px; font-size: 1.2rem;">✓</span>
-                            <span><strong>2.</strong> Определим 1-2 ключевых шага для вас на ближайший месяц</span>
+                            <span><strong>2.</strong> Определим 1-2 ключевых шага для тебя на ближайший месяц</span>
                         </li>
                         <li style="margin-bottom: 0; display: flex; align-items: start;">
                             <span style="margin-right: 10px; font-size: 1.2rem;">✓</span>
-                            <span><strong>3.</strong> Вы получите шаблон «Стратегической карты адаптации»</span>
+                            <span><strong>3.</strong> Ты получишь  Стретегическую карту адаптации</span>
                         </li>
                     </ul>
+                </div>
+                
+                <!-- Отзывы от участников -->
+                <div style="background: rgba(255,255,255,0.2); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4 style="margin: 0 0 20px 0; color: #fff; font-size: 1.2rem; font-weight: 600; text-align: center;">💬 Что говорят те, кто уже был на встрече:</h4>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Отзыв 1 -->
+                        <div style="background: rgba(255,255,255,0.15); padding: 18px; border-radius: 12px; border-left: 4px solid rgba(255,255,255,0.4);">
+                            <p style="margin: 0; color: #fff; font-size: 0.95rem; line-height: 1.6; font-style: italic;">
+                                "Было очень комфортно, было очень понятно, без всякой воды лишней. Всё по теме, всё по фактам, по-постепенно."
+                            </p>
+                        </div>
+                        
+                        <!-- Отзыв 2 -->
+                        <div style="background: rgba(255,255,255,0.15); padding: 18px; border-radius: 12px; border-left: 4px solid rgba(255,255,255,0.4);">
+                            <p style="margin: 0; color: #fff; font-size: 0.95rem; line-height: 1.6; font-style: italic;">
+                                "Теперь я понимаю, куда мне двигаться, есть какой-то план действий... Спасибо, что... дала такой небольшой толчок."
+                            </p>
+                        </div>
+                        
+                        <!-- Отзыв 3 -->
+                        <div style="background: rgba(255,255,255,0.15); padding: 18px; border-radius: 12px; border-left: 4px solid rgba(255,255,255,0.4);">
+                            <p style="margin: 0; color: #fff; font-size: 0.95rem; line-height: 1.6; font-style: italic;">
+                                "Поняла, что надо больше о себе заботиться, и поставить в график на неделе день, где я занимаюсь только собой."
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 
                 <p>Запишитесь на <strong>бесплатную</strong> дружескую встречу со мной, чтобы укрепить результаты, добавить лёгкости и составить план мягкого роста в новой жизни.</p>
@@ -743,69 +765,7 @@
                     </p>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
-                    <p style="margin: 0 0 15px 0; font-size: 0.9rem; text-align: center;">📋 <strong>Пример документа, который вы получите:</strong></p>
-                    
-                    <!-- Мини-превью стратегической карты -->
-                    <div style="background: white; border-radius: 8px; padding: 15px; margin: 10px 0; color: #333;">
-                        <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: #007bff;">🗺️ СТРАТЕГИЧЕСКАЯ КАРТА АДАПТАЦИИ</div>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 0.8rem;">
-                            <div style="background: #d4edda; padding: 8px; border-radius: 5px; border-left: 3px solid #28a745;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">📋 ИССЛЕДОВАНИЕ</div>
-                                <div>• Финансы и визы</div>
-                                <div>• Документы</div>
-                                <div>• Обучение</div>
-                            </div>
-                            
-                            <div style="background: #d4edda; padding: 8px; border-radius: 5px; border-left: 3px solid #28a745;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">🏠 ЖИЛЬЕ И РАБОТА</div>
-                                <div>• Поиск жилья</div>
-                                <div>• Трудоустройство</div>
-                                <div>• Бизнес</div>
-                            </div>
-                            
-                            <div style="background: #d4edda; padding: 8px; border-radius: 5px; border-left: 3px solid #28a745;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">⚡ ЭТАП 1: АДАПТАЦИЯ</div>
-                                <div style="font-size: 0.7rem; color: #666;">1-2 года</div>
-                                <div>• Базовые навыки</div>
-                                <div>• Первые контакты</div>
-                            </div>
-                            
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 5px; border-left: 3px solid #ffc107;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">💰 ФИНАНСЫ</div>
-                                <div>• Банковские счета</div>
-                                <div>• Кредитная история</div>
-                                <div>• Налоги</div>
-                            </div>
-                            
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 5px; border-left: 3px solid #ffc107;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">📈 ЭТАП 2: РАЗВИТИЕ</div>
-                                <div style="font-size: 0.7rem; color: #666;">3-5 лет</div>
-                                <div>• Карьерный рост</div>
-                                <div>• Интеграция</div>
-                            </div>
-                            
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 5px; border-left: 3px solid #dc3545;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">🎯 ИНВЕСТИЦИИ</div>
-                                <div>• Недвижимость</div>
-                                <div>• Бизнес</div>
-                                <div>• Пенсия</div>
-                            </div>
-                            
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 5px; border-left: 3px solid #dc3545;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">🌟 ЭТАП 3: ИНТЕГРАЦИЯ</div>
-                                <div style="font-size: 0.7rem; color: #666;">5+ лет</div>
-                                <div>• Полная интеграция</div>
-                                <div>• Долгосрочные цели</div>
-                            </div>
-                        </div>
-                        
-                        <div style="text-align: center; margin-top: 10px; font-size: 0.8rem; color: #666;">
-                            ✨ Ваша персональная карта с конкретными шагами и временными рамками
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
