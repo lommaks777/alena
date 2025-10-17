@@ -504,16 +504,7 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
 
-            <div class="question active" data-question="0">
-                <h3>0. Как вас зовут?</h3>
-                <div class="options">
-                    <label class="option">
-                        <input type="text" name="q0" id="nameInput" placeholder="Введите ваше имя" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
-                    </label>
-                </div>
-            </div>
-
-            <div class="question" data-question="1">
+            <div class="question active" data-question="1">
                 <h3>1. Сколько времени вы уже живёте в новой стране?</h3>
                 <div class="options">
                     <label class="option">
@@ -711,10 +702,28 @@
                 </div>
             </div>
 
+            <div class="question" data-question="10">
+                <h3>10. Что больше всего беспокоит вас в эмиграции?</h3>
+                <div class="options">
+                    <label class="option" style="display: block;">
+                        <textarea name="q10" id="concernInput" placeholder="Напишите, что вызывает больше всего тревоги или вопросов..." style="width: 100%; min-height: 100px; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 1rem; line-height: 1.5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; resize: vertical;" maxlength="500"></textarea>
+                    </label>
+                </div>
+            </div>
+
+            <div class="question" data-question="11">
+                <h3>11. Как вас зовут?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="text" name="q0" id="nameInput" placeholder="Введите ваше имя" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                    </label>
+                </div>
+            </div>
+
 
             <div class="navigation">
                 <button class="btn" id="prevBtn" disabled>← Назад</button>
-                <span id="questionCounter">1 из 9</span>
+                <span id="questionCounter">1 из 11</span>
                 <button class="btn" id="nextBtn">Далее →</button>
             </div>
         </div>
@@ -723,8 +732,28 @@
             <div id="resultContent"></div>
             
             <div class="booking-form">
-                <h3>Получи свой персональный план адаптации.</h3>
-                <p>Запишись на <strong>бесплатную</strong> дружескую встречу со мной, чтобы укрепить результаты, добавить лёгкости и составить план мягкого роста в новой жизни.</p>
+                <h3>Давайте вместе составим ваш личный план?</h3>
+                
+                <!-- Ценностное предложение -->
+                <div style="background: rgba(255,255,255,0.15); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4 style="margin: 0 0 20px 0; color: #fff; font-size: 1.3rem; font-weight: 600;">На встрече мы:</h4>
+                    <ul style="margin: 0; padding-left: 25px; color: #fff; line-height: 1.8; font-size: 1rem; list-style: none;">
+                        <li style="margin-bottom: 15px; display: flex; align-items: start;">
+                            <span style="margin-right: 10px; font-size: 1.2rem;">✓</span>
+                            <span><strong>1.</strong> Разберем вашу текущую ситуацию</span>
+                        </li>
+                        <li style="margin-bottom: 15px; display: flex; align-items: start;">
+                            <span style="margin-right: 10px; font-size: 1.2rem;">✓</span>
+                            <span><strong>2.</strong> Определим 1-2 ключевых шага для вас на ближайший месяц</span>
+                        </li>
+                        <li style="margin-bottom: 0; display: flex; align-items: start;">
+                            <span style="margin-right: 10px; font-size: 1.2rem;">✓</span>
+                            <span><strong>3.</strong> Вы получите шаблон «Стратегической карты адаптации»</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <p>Запишитесь на <strong>бесплатную</strong> дружескую встречу со мной, чтобы укрепить результаты, добавить лёгкости и составить план мягкого роста в новой жизни.</p>
                 
                 <form id="bookingForm">
                     <div class="form-group">
@@ -828,8 +857,8 @@
     <script>
         class Quiz {
             constructor() {
-                this.currentQuestion = 0;
-                this.totalQuestions = 9;
+                this.currentQuestion = 1;
+                this.totalQuestions = 11;
                 this.answers = {};
                 this.startTimeMs = Date.now();
                 this.results = {
@@ -863,7 +892,8 @@
                     q6: "6. Что сильнее всего ощущается внутри?",
                     q7: "7. Когда думаете о будущем…",
                     q8: "8. Как вы обычно справляетесь с трудностями?",
-                    q9: "9. Если бы описать себя одним словом прямо сейчас…"
+                    q9: "9. Если бы описать себя одним словом прямо сейчас…",
+                    q10: "10. Что больше всего беспокоит вас в эмиграции?"
                 };
                 
                 // Тексты ответов для отправки в Telegram
@@ -951,25 +981,7 @@
                 this.updateProgress();
                 this.updateNavigation();
                 
-                // Дополнительная проверка для текстового поля имени и кнопок
-                setTimeout(() => {
-                    if (this.currentQuestion === 0) {
-                        this.setupNameInputListener();
-                        const nameInput = document.getElementById('nameInput');
-                        if (nameInput) {
-                            // Принудительно обновляем навигацию при загрузке
-                            this.updateNavigation();
-                        }
-                    }
-                    
-                    // Дополнительная настройка кнопки "Далее"
-                    const nextBtn = document.getElementById('nextBtn');
-                    if (nextBtn) {
-                        nextBtn.removeEventListener('click', this.handleNextClick);
-                        nextBtn.addEventListener('click', this.handleNextClick.bind(this));
-                        console.log('Next button listener re-added in init');
-                    }
-                }, 100);
+                // No longer need name input listener at start since q0 is now at position 11
             }
 
             initStats() {
@@ -1090,9 +1102,17 @@
                 
                 // Проверяем, есть ли ответ перед переходом
                 let hasAnswer = false;
-                if (this.currentQuestion === 0) {
+                if (this.currentQuestion === 11) {
+                    // Question 11 is name input (q0)
                     const nameInput = document.getElementById('nameInput');
                     hasAnswer = nameInput && nameInput.value.trim().length > 0;
+                } else if (this.currentQuestion === 10) {
+                    // Question 10 is concern textarea (q10) - optional
+                    const concernInput = document.getElementById('concernInput');
+                    // Always allow proceeding from q10 (optional field)
+                    hasAnswer = true;
+                    // Save the value even if empty
+                    this.answers['q10'] = concernInput ? concernInput.value.trim() : '';
                 } else {
                     hasAnswer = this.answers[`q${this.currentQuestion}`];
                 }
@@ -1113,8 +1133,23 @@
                     });
                 });
 
-                // Обработка текстового поля имени
-                this.setupNameInputListener();
+                // Обработка текстового поля имени (q0 - теперь вопрос 11)
+                const nameInput = document.getElementById('nameInput');
+                if (nameInput) {
+                    nameInput.addEventListener('input', (e) => {
+                        this.answers['q0'] = e.target.value.trim();
+                        this.updateNavigation();
+                    });
+                }
+                
+                // Обработка текстового поля опасений (q10 - вопрос 10)
+                const concernInput = document.getElementById('concernInput');
+                if (concernInput) {
+                    concernInput.addEventListener('input', (e) => {
+                        this.answers['q10'] = e.target.value.trim();
+                        this.updateNavigation();
+                    });
+                }
 
                 // Навигация
                 const nextBtn = document.getElementById('nextBtn');
@@ -1192,7 +1227,7 @@
                     nextBtn.disabled = true;
                 }
                 
-                // Автоматически переходим к следующему вопросу через 1 секунду
+                // Автоматически переходим к следующему вопросу через 1 секунду (только для multiple choice)
                 setTimeout(() => {
                     if (this.currentQuestion < this.totalQuestions) {
                         this.nextQuestion();
@@ -1205,8 +1240,8 @@
             nextQuestion() {
                 console.log('Next question clicked, current:', this.currentQuestion);
                 
-                // Для вопроса 0 (имя) сохраняем значение
-                if (this.currentQuestion === 0) {
+                // Для вопроса 11 (имя) сохраняем значение
+                if (this.currentQuestion === 11) {
                     const nameInput = document.getElementById('nameInput');
                     if (nameInput) {
                         this.answers['q0'] = nameInput.value.trim();
@@ -1214,10 +1249,22 @@
                     }
                 }
                 
+                // Для вопроса 10 (опасения) сохраняем значение
+                if (this.currentQuestion === 10) {
+                    const concernInput = document.getElementById('concernInput');
+                    if (concernInput) {
+                        this.answers['q10'] = concernInput.value.trim();
+                        console.log('Saved concern:', this.answers['q10']);
+                    }
+                }
+                
                 // Проверяем, есть ли ответ
                 let hasAnswer = false;
-                if (this.currentQuestion === 0) {
+                if (this.currentQuestion === 11) {
                     hasAnswer = this.answers['q0'] && this.answers['q0'].length > 0;
+                } else if (this.currentQuestion === 10) {
+                    // q10 is optional, always allow proceeding
+                    hasAnswer = true;
                 } else {
                     hasAnswer = this.answers[`q${this.currentQuestion}`];
                 }
@@ -1270,7 +1317,7 @@
                 const nextBtn = document.getElementById('nextBtn');
 
                 // Обновляем состояние кнопки "Назад"
-                if (this.currentQuestion === 0) {
+                if (this.currentQuestion === 1) {
                     prevBtn.disabled = true;
                     prevBtn.classList.remove('active');
                     prevBtn.classList.add('disabled');
@@ -1281,11 +1328,14 @@
                 }
 
                 let currentAnswer;
-                if (this.currentQuestion === 0) {
-                    // Для вопроса 0 (имя) проверяем текстовое поле
+                if (this.currentQuestion === 11) {
+                    // Для вопроса 11 (имя) проверяем текстовое поле
                     const nameInput = document.getElementById('nameInput');
                     currentAnswer = nameInput ? nameInput.value.trim() : '';
                     console.log('Checking name input:', currentAnswer, 'Length:', currentAnswer.length);
+                } else if (this.currentQuestion === 10) {
+                    // Для вопроса 10 (опасения) - опциональное поле, всегда разрешаем переход
+                    currentAnswer = 'optional'; // Always allow proceeding
                 } else {
                     currentAnswer = this.answers[`q${this.currentQuestion}`];
                 }
@@ -1593,12 +1643,19 @@
                     
                     // Формируем ответы на вопросы
                     let answersText = '';
+                    let concernText = '';
                     Object.entries(this.answers).forEach(([questionId, answer]) => {
                         const questionText = this.questionTexts[questionId] || questionId;
                         const answerText = this.answerTexts[questionId] && this.answerTexts[questionId][answer] 
                             ? this.answerTexts[questionId][answer] 
                             : answer;
-                        answersText += `\n${questionText}\nОтвет: ${answerText}\n`;
+                        
+                        // Отдельно обрабатываем q10 (опасения об эмиграции)
+                        if (questionId === 'q10') {
+                            concernText = answerText || 'Не указано';
+                        } else {
+                            answersText += `\n${questionText}\nОтвет: ${answerText}\n`;
+                        }
                     });
                     
                     const message = `
@@ -1610,6 +1667,9 @@
 
 📊 РЕЗУЛЬТАТ КВИЗА:
 ${resultText}
+
+🔍 ЧТО БЕСПОКОИТ БОЛЬШЕ ВСЕГО:
+${concernText}
 
 📝 ОТВЕТЫ НА ВОПРОСЫ:${answersText}
 
@@ -1651,12 +1711,19 @@ ${resultText}
                     const resultText = this.results[finalResult];
                     
                     let answersText = '';
+                    let concernText = '';
                     Object.entries(this.answers).forEach(([questionId, answer]) => {
                         const questionText = this.questionTexts[questionId] || questionId;
                         const answerText = this.answerTexts[questionId] && this.answerTexts[questionId][answer] 
                             ? this.answerTexts[questionId][answer] 
                             : answer;
-                        answersText += `\n${questionText}\nОтвет: ${answerText}\n`;
+                        
+                        // Отдельно обрабатываем q10
+                        if (questionId === 'q10') {
+                            concernText = answerText || 'Не указано';
+                        } else {
+                            answersText += `\n${questionText}\nОтвет: ${answerText}\n`;
+                        }
                     });
                     
                     const userName = this.answers['q0'] || 'Не указано';
@@ -1672,6 +1739,9 @@ ${resultText}
 
 📊 РЕЗУЛЬТАТ КВИЗА:
 ${resultText}
+
+🔍 ЧТО БЕСПОКОИТ БОЛЬШЕ ВСЕГО:
+${concernText}
 
 📝 ОТВЕТЫ НА ВОПРОСЫ:${answersText}
 
