@@ -459,6 +459,8 @@
             displayStats() {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('statsContent').style.display = 'block';
+                document.getElementById('errorContent').style.display = 'none';
+                document.getElementById('errorContent').style.display = 'none';
 
                 // Основная статистика
                 document.getElementById('totalResponses').textContent = this.stats.totalResponses.toLocaleString();
@@ -755,6 +757,7 @@
 
             showError() {
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('statsContent').style.display = 'none';
                 document.getElementById('errorContent').style.display = 'block';
             }
         }
