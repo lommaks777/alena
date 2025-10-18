@@ -331,7 +331,7 @@
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number" id="partialResponses">0</div>
+                    <div class="stat-number" id="partialResponsesCount">0</div>
                     <div class="stat-description">Незавершенных квизов</div>
                 </div>
                 
@@ -465,7 +465,7 @@
                 // Основная статистика
                 document.getElementById('totalResponses').textContent = this.stats.totalResponses.toLocaleString();
                 document.getElementById('completedResponses').textContent = this.stats.completedResponses.toLocaleString();
-                document.getElementById('partialResponses').textContent = this.stats.partialResponses.toLocaleString();
+                document.getElementById('partialResponsesCount').textContent = this.stats.partialResponses.toLocaleString();
                 document.getElementById('avgAnsweredQuestions').textContent = this.stats.avgAnsweredQuestions.toFixed(1);
 
                 // Диаграмма результатов
