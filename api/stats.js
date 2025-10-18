@@ -50,6 +50,16 @@ export default async function handler(req, res) {
         }
 
         const totalResponses = allResponses?.length || 0;
+        const completedResponses = (allResponses || []).filter(r => !r.is_partial);
+        const partialResponses = (allResponses || []).filter(r => r.is_partial);
+        
+        // Calculate average answered questions
+        const avgAnsweredQuestions = totalResponses > 0
+            ? (allResponses || []).reduce((sum, r) => {
+                const answerCount = Object.keys(r.answers || {}).filter(k => k !== 'q0').length;
+                return sum + answerCount;
+            }, 0) / totalResponses
+            : 0;
 
         // Calculate results distribution (A, B, C, D)
         const resultsDistribution = (allResponses || []).reduce((acc, entry) => {
@@ -79,19 +89,36 @@ export default async function handler(req, res) {
             return acc;
         }, {});
 
-        // Get recent responses (last 10)
-        const recentResponses = (allResponses || []).slice(0, 10).map(r => ({
+        // Get recent responses (last 10 completed + all partial)
+        const recentCompleted = completedResponses.slice(0, 10).map(r => ({
             id: r.id,
             name: r.name,
             result: r.result,
-            created_at: r.created_at
+            answers: r.answers,
+            created_at: r.created_at,
+            is_partial: false
+        }));
+        
+        const recentPartial = partialResponses.map(r => ({
+            id: r.id,
+            name: r.name,
+            result: r.result,
+            answers: r.answers,
+            current_question: r.current_question,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+            is_partial: true
         }));
 
         res.status(200).json({
             totalResponses,
+            completedResponses: completedResponses.length,
+            partialResponses: partialResponses.length,
+            avgAnsweredQuestions: Math.round(avgAnsweredQuestions * 10) / 10,
             resultsDistribution,
             answersDistribution,
-            recentResponses
+            recentResponses: recentCompleted,
+            partialSubmissions: recentPartial
         });
 
     } catch (error) {

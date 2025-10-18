@@ -326,18 +326,18 @@
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number" id="uniqueUsers">0</div>
-                    <div class="stat-description">Уникальных пользователей</div>
+                    <div class="stat-number" id="completedResponses">0</div>
+                    <div class="stat-description">Завершенных квизов</div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number" id="completionRate">0%</div>
-                    <div class="stat-description">Процент завершения</div>
+                    <div class="stat-number" id="partialResponses">0</div>
+                    <div class="stat-description">Незавершенных квизов</div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number" id="avgTime">0 мин</div>
-                    <div class="stat-description">Среднее время прохождения</div>
+                    <div class="stat-number" id="avgAnsweredQuestions">0</div>
+                    <div class="stat-description">Среднее количество отвеченных вопросов</div>
                 </div>
             </div>
 
@@ -356,9 +356,16 @@
             </div>
 
             <div class="chart-container">
-                <h3 class="chart-title">👥 Ответы пользователей</h3>
+                <h3 class="chart-title">👥 Ответы пользователей (завершенные)</h3>
                 <div class="user-responses" id="userResponses">
                     <!-- Ответы пользователей будут созданы динамически -->
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">⚠️ Незавершенные квизы</h3>
+                <div class="user-responses" id="partialResponses">
+                    <!-- Незавершенные квизы будут созданы динамически -->
                 </div>
             </div>
         </div>
@@ -406,15 +413,21 @@
                     // Преобразуем данные в нужный формат, включая userResponses из Supabase
                     this.stats = {
                         totalResponses: serverData.totalResponses || 0,
-                        uniqueUsers: serverData.totalResponses || 0, // Считаем каждый ответ уникальным
-                        completionRate: serverData.totalResponses > 0 ? 100 : 0,
-                        avgTime: 0, // Можно добавить позже
+                        completedResponses: serverData.completedResponses || 0,
+                        partialResponses: serverData.partialResponses || 0,
+                        avgAnsweredQuestions: serverData.avgAnsweredQuestions || 0,
                         results: serverData.resultsDistribution || { A: 0, B: 0, C: 0, D: 0 },
                         questions: serverData.answersDistribution || {},
                         userResponses: (serverData.recentResponses || []).map(r => ({
                             name: r.name || 'Аноним',
                             timestamp: r.created_at,
                             result: r.result,
+                            answers: r.answers || {}
+                        })),
+                        partialSubmissions: (serverData.partialSubmissions || []).map(r => ({
+                            name: r.name || 'Аноним',
+                            timestamp: r.updated_at || r.created_at,
+                            current_question: r.current_question,
                             answers: r.answers || {}
                         }))
                     };
@@ -446,9 +459,9 @@
 
                 // Основная статистика
                 document.getElementById('totalResponses').textContent = this.stats.totalResponses.toLocaleString();
-                document.getElementById('uniqueUsers').textContent = this.stats.uniqueUsers.toLocaleString();
-                document.getElementById('completionRate').textContent = this.stats.completionRate + '%';
-                document.getElementById('avgTime').textContent = this.stats.avgTime + ' мин';
+                document.getElementById('completedResponses').textContent = this.stats.completedResponses.toLocaleString();
+                document.getElementById('partialResponses').textContent = this.stats.partialResponses.toLocaleString();
+                document.getElementById('avgAnsweredQuestions').textContent = this.stats.avgAnsweredQuestions.toFixed(1);
 
                 // Диаграмма результатов
                 this.createResultsChart();
@@ -458,6 +471,9 @@
                 
                 // Ответы пользователей
                 this.createUserResponses();
+                
+                // Незавершенные квизы
+                this.createPartialResponses();
             }
 
             createResultsChart() {
@@ -675,6 +691,58 @@
                         <div class="user-result">${resultLabels[response.result] || response.result}</div>
                         <div class="user-answers">
                             ${answersHtml}
+                        </div>
+                    `;
+                    
+                    container.appendChild(responseDiv);
+                });
+            }
+
+            createPartialResponses() {
+                const container = document.getElementById('partialResponses');
+                container.innerHTML = '';
+
+                if (!this.stats.partialSubmissions || this.stats.partialSubmissions.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Незавершенных квизов нет 🎉</p>';
+                    return;
+                }
+
+                // Сортируем по времени (новые сверху)
+                const sortedPartial = this.stats.partialSubmissions.sort((a, b) => 
+                    new Date(b.timestamp) - new Date(a.timestamp)
+                );
+
+                sortedPartial.forEach(response => {
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'user-response';
+                    responseDiv.style.borderLeft = '4px solid #ff6b6b';
+                    
+                    const answeredCount = Object.keys(response.answers || {}).filter(k => k !== 'q0').length;
+                    const progressText = response.current_question 
+                        ? `Остановился на вопросе ${response.current_question}` 
+                        : `Отвечено ${answeredCount} вопросов`;
+
+                    const answersHtml = Object.entries(response.answers || {})
+                        .filter(([questionId, answer]) => questionId !== 'q0' && answer)
+                        .map(([questionId, answer]) => {
+                            const questionText = this.getQuestionText(questionId);
+                            const answerText = this.getAnswerText(questionId, answer);
+                            return `
+                                <div class="user-answer-item">
+                                    <div class="user-question">${questionText}</div>
+                                    <div class="user-answer">${answerText}</div>
+                                </div>
+                            `;
+                        }).join('');
+
+                    responseDiv.innerHTML = `
+                        <div class="user-header">
+                            <div class="user-name">${response.name}</div>
+                            <div class="user-timestamp">${new Date(response.timestamp).toLocaleString('ru-RU')}</div>
+                        </div>
+                        <div class="user-result" style="background: #ff6b6b;">${progressText}</div>
+                        <div class="user-answers">
+                            ${answersHtml || '<p style="color: #999; padding: 10px;">Нет ответов</p>'}
                         </div>
                     `;
                     
