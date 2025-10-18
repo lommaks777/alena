@@ -3,12 +3,21 @@
 <cite>
 **Referenced Files in This Document**   
 - [generate-result.js](file://api/generate-result.js)
-- [submit.js](file://api/submit.js)
-- [stats.js](file://api/stats.js)
-- [answers.json](file://answers.json)
+- [submit.js](file://api/submit.js) - *Updated for Supabase integration*
+- [stats.js](file://api/stats.js) - *Updated for Supabase integration*
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md) - *Added in recent commit*
 - [vercel.json](file://vercel.json)
 - [package.json](file://package.json)
 </cite>
+
+## Update Summary
+**Changes Made**   
+- Updated documentation to reflect migration from file-based storage to Supabase cloud database
+- Modified architecture diagrams and data flow descriptions to show Supabase integration
+- Updated section analyses for submit.js and stats.js to reflect new database implementation
+- Added Supabase setup and configuration details
+- Removed outdated information about answers.json file storage
+- Enhanced source tracking with annotations for updated files
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -24,7 +33,7 @@
 ## Introduction
 This document provides comprehensive architectural documentation for the backend serverless functions in the Alena application. The system is built on Vercel's serverless infrastructure and consists of three primary API endpoints: `generate-result.js`, `submit.js`, and `stats.js`. These functions support a psychological assessment quiz designed to help women in migration identify their adaptation stage and receive personalized guidance.
 
-The backend follows a stateless, event-driven model typical of serverless architectures, with request-response patterns, CORS handling, and JSON payloads. Data persistence is implemented via a file-based system using `answers.json`, and AI-powered feedback generation is orchestrated through OpenAI's API with fallback logic. This documentation details the data flow, execution model, error resilience, and scalability characteristics of the system.
+The backend follows a stateless, event-driven model typical of serverless architectures, with request-response patterns, CORS handling, and JSON payloads. Data persistence has been migrated from file-based storage to Supabase cloud database, providing improved scalability and reliability. AI-powered feedback generation is orchestrated through OpenAI's API with fallback logic. This documentation details the data flow, execution model, error resilience, and scalability characteristics of the system.
 
 ## Project Structure
 
@@ -36,7 +45,7 @@ B[submit.js]
 C[stats.js]
 end
 subgraph "Data & Configuration"
-D[answers.json]
+D[SUPABASE_SETUP.md]
 E[vercel.json]
 F[package.json]
 end
@@ -45,9 +54,9 @@ G[index.html]
 H[quiz.html]
 I[thank-you.html]
 end
-A --> D
-B --> D
-C --> D
+A --> O[OpenAI API]
+B --> S[Supabase]
+C --> S[Supabase]
 G --> A
 G --> B
 H --> A
@@ -62,14 +71,14 @@ E --> C
 - [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
-- [answers.json](file://answers.json)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
 - [vercel.json](file://vercel.json)
 
 **Section sources**
 - [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
-- [answers.json](file://answers.json)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
 - [vercel.json](file://vercel.json)
 
 ## Core Components
@@ -77,8 +86,8 @@ E --> C
 The backend consists of three serverless functions deployed on Vercel:
 
 - **generate-result.js**: AI-powered feedback generator that analyzes user responses and returns personalized HTML content via OpenAI, with fallback logic.
-- **submit.js**: Handles persistence of user quiz answers to `answers.json` with timestamp and unique ID.
-- **stats.js**: Provides analytics on response distribution and adaptation stages across all users.
+- **submit.js**: Handles persistence of user quiz answers to Supabase cloud database with timestamp and unique ID.
+- **stats.js**: Provides analytics on response distribution and adaptation stages across all users by querying Supabase.
 
 All functions implement CORS headers to allow cross-origin requests from the frontend, and follow a stateless execution model where each invocation is independent and ephemeral.
 
@@ -94,21 +103,24 @@ graph LR
 F[Frontend] --> |POST /api/submit| B[submit.js]
 F --> |POST /api/generate-result| C[generate-result.js]
 F --> |GET /api/stats| D[stats.js]
-B --> |Write| A[answers.json]
-C --> |Read| A
-D --> |Read| A
+B --> |Insert| S[Supabase]
+C --> |Read| S
+D --> |Query| S
 C --> |POST /chat/completions| O[OpenAI API]
 O --> |Response| C
 subgraph "Vercel Serverless Environment"
 B
 C
 D
-A
+end
+subgraph "External Services"
+S[Supabase]
+O[OpenAI API]
 end
 style B fill:#4CAF50,stroke:#388E3C
 style C fill:#2196F3,stroke:#1976D2
 style D fill:#FF9800,stroke:#F57C00
-style A fill:#9C27B0,stroke:#7B1FA2
+style S fill:#9C27B0,stroke:#7B1FA2
 style O fill:#607D8B,stroke:#455A64
 ```
 
@@ -116,7 +128,7 @@ style O fill:#607D8B,stroke:#455A64
 - [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
-- [answers.json](file://answers.json)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
 
 ## Detailed Component Analysis
 
@@ -153,112 +165,118 @@ GenerateResult-->>Frontend : Return HTML result
 
 ### submit.js Analysis
 
-Handles the persistence of user answers to a JSON file, adding metadata such as timestamp and unique ID.
+Handles the persistence of user answers to Supabase cloud database, adding metadata such as timestamp and unique ID.
 
 ```mermaid
 flowchart TD
 Start([Request Received]) --> ValidateMethod{"Method == POST?"}
 ValidateMethod --> |No| Return405[Return 405]
-ValidateMethod --> |Yes| ReadFile["Read answers.json"]
-ReadFile --> |File Not Found| InitEmpty["Initialize empty array"]
-ReadFile --> |Success| ParseData["Parse JSON"]
-InitEmpty --> AddData
-ParseData --> AddData["Add new answers with timestamp and ID"]
-AddData --> WriteFile["Write back to answers.json"]
-WriteFile --> Return200[Return 200 OK]
+ValidateMethod --> |Yes| CheckSupabase{"Supabase Configured?"}
+CheckSupabase --> |No| ReturnWarning[Return 200 with warning]
+CheckSupabase --> |Yes| ExtractData["Extract name and concern from answers"]
+ExtractData --> PrepareData["Prepare data for Supabase"]
+PrepareData --> InsertData["Insert into quiz_responses table"]
+InsertData --> |Success| ReturnSuccess[Return 200 with data]
+InsertData --> |Error| ThrowError[Throw error]
+ThrowError --> Return500[Return 500]
 ```
 
 **Diagram sources**
-- [api/submit.js](file://api/submit.js#L4-L62)
+- [api/submit.js](file://api/submit.js#L4-L78) - *Updated for Supabase*
 
 **Section sources**
-- [api/submit.js](file://api/submit.js)
+- [api/submit.js](file://api/submit.js) - *Updated for Supabase integration*
 
 ### stats.js Analysis
 
-Provides analytical insights by aggregating data from all stored responses.
+Provides analytical insights by aggregating data from all stored responses in Supabase.
 
 ```mermaid
 flowchart TD
-Start([GET /api/stats]) --> ReadAnswers["Read answers.json"]
-ReadAnswers --> |File Not Found| ReturnEmpty["Return empty stats"]
-ReadAnswers --> |Success| ParseAnswers["Parse JSON"]
-ParseAnswers --> CountTotal["Count total responses"]
-ParseAnswers --> DistributeResults["Count result distribution"]
-ParseAnswers --> DistributeAnswers["Count answer distribution per question"]
+Start([GET /api/stats]) --> CheckSupabase{"Supabase Configured?"}
+CheckSupabase --> |No| ReturnEmpty["Return empty stats with warning"]
+CheckSupabase --> |Yes| QuerySupabase["Query quiz_responses table"]
+QuerySupabase --> |Success| ParseData["Parse response data"]
+ParseData --> CountTotal["Count total responses"]
+ParseData --> DistributeResults["Count result distribution"]
+ParseData --> DistributeAnswers["Count answer distribution per question"]
+ParseData --> GetRecent["Get recent responses"]
 CountTotal --> Assemble
 DistributeResults --> Assemble
 DistributeAnswers --> Assemble
+GetRecent --> Assemble
 Assemble[Assemble response JSON] --> ReturnStats[Return 200 with stats]
 ```
 
 **Diagram sources**
-- [api/stats.js](file://api/stats.js)
+- [api/stats.js](file://api/stats.js) - *Updated for Supabase*
 
 **Section sources**
-- [api/stats.js](file://api/stats.js)
+- [api/stats.js](file://api/stats.js) - *Updated for Supabase integration*
 
 ## Dependency Analysis
 
 ```mermaid
 graph TD
 A[generate-result.js] --> |Uses| B[OpenAI API]
-A --> |Reads| C[answers.json]
-A --> |Uses| D[process.env.OPENAI_API_KEY]
-B[submit.js] --> |Reads/Writes| C[answers.json]
-B --> |Uses| E[fs/promises]
-B --> |Uses| F[path]
-C[stats.js] --> |Reads| C[answers.json]
-C --> |Uses| G[express]
-C --> |Uses| H[fs.promises]
-D --> |Configured in| I[vercel.json]
-I --> |Deploys| A
-I --> |Deploys| B
-I --> |Deploys| C
+A --> |Uses| C[process.env.OPENAI_API_KEY]
+B[submit.js] --> |Uses| D[Supabase]
+B --> |Uses| E[process.env.SUPABASE_URL]
+B --> |Uses| F[process.env.SUPABASE_ANON_KEY]
+C[stats.js] --> |Uses| D[Supabase]
+C --> |Uses| E[process.env.SUPABASE_URL]
+C --> |Uses| F[process.env.SUPABASE_ANON_KEY]
+D[Supabase] --> |Configured via| G[SUPABASE_SETUP.md]
+G --> |Deploys| B
+G --> |Deploys| C
+H[package.json] --> |Includes| I[@supabase/supabase-js]
+I --> |Used by| B
+I --> |Used by| C
 ```
 
 **Diagram sources**
 - [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
-- [answers.json](file://answers.json)
-- [vercel.json](file://vercel.json)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
+- [package.json](file://package.json)
 
 **Section sources**
 - [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
-- [vercel.json](file://vercel.json)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
+- [package.json](file://package.json)
 
 ## Performance Considerations
 
-The serverless architecture introduces cold start latency, particularly for `generate-result.js` which must initialize the OpenAI request pipeline. The file-based persistence in `answers.json` presents scalability limitations as concurrent writes may cause race conditions without proper locking mechanisms.
+The serverless architecture introduces cold start latency, particularly for `generate-result.js` which must initialize the OpenAI request pipeline. The migration from file-based persistence to Supabase cloud database has resolved scalability limitations and eliminated race conditions associated with concurrent writes.
 
-The system is stateless, ensuring horizontal scalability, but file I/O operations on Vercel's ephemeral filesystem may impact performance under high load. The fallback content in `generate-result.js` ensures availability even when OpenAI API is unreachable, improving resilience.
+The system is stateless, ensuring horizontal scalability. The Supabase integration provides reliable data persistence with proper indexing and Row Level Security. The fallback content in `generate-result.js` ensures availability even when OpenAI API is unreachable, improving resilience.
 
-Data aggregation in `stats.js` loads the entire `answers.json` into memory, which may become problematic as the dataset grows. Pagination or database integration would be recommended for long-term scalability.
+Data aggregation in `stats.js` now queries Supabase directly, which can handle larger datasets efficiently through proper indexing. The implementation includes safeguards for when Supabase credentials are not configured, returning appropriate warnings.
 
 **Section sources**
 - [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
-- [answers.json](file://answers.json)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
 
 ## Troubleshooting Guide
 
 Common issues and their resolutions:
 
-- **OpenAI API failures**: The system automatically falls back to predefined content. Ensure `OPENAI_API_KEY` is set in Vercel environment variables.
-- **File write conflicts**: Concurrent submissions may overwrite data. Implement atomic writes or consider a database.
+- **Supabase credentials not found**: Ensure `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set in Vercel environment variables.
+- **Supabase table not found**: Execute the SQL script in Supabase SQL Editor to create the `quiz_responses` table.
 - **CORS errors**: All endpoints set `Access-Control-Allow-Origin: *`, but verify frontend origin matches.
 - **Empty responses**: Check request payload structure; must include `name` and `answers` fields.
-- **Stats not updating**: Verify `answers.json` is being written correctly by `submit.js`.
+- **Stats not updating**: Verify Supabase configuration and check that `submit.js` is successfully inserting records.
 
 **Section sources**
-- [api/generate-result.js](file://api/generate-result.js)
 - [api/submit.js](file://api/submit.js)
 - [api/stats.js](file://api/stats.js)
+- [SUPABASE_SETUP.md](file://SUPABASE_SETUP.md)
 
 ## Conclusion
 
-The Alena application employs a clean, serverless backend architecture on Vercel with three well-defined functions handling feedback generation, data persistence, and analytics. The system demonstrates thoughtful error handling with fallback content and proper CORS configuration. While the file-based storage is simple and effective for low-to-medium traffic, it presents concurrency and scalability challenges that should be addressed in future iterations. The integration with OpenAI enables personalized user experiences, and the modular function design supports maintainability and independent deployment.
+The Alena application employs a clean, serverless backend architecture on Vercel with three well-defined functions handling feedback generation, data persistence, and analytics. The system demonstrates thoughtful error handling with fallback content and proper CORS configuration. The migration from file-based storage to Supabase cloud database significantly improves scalability, reliability, and data integrity. The integration with OpenAI enables personalized user experiences, and the modular function design supports maintainability and independent deployment. Future enhancements could include more sophisticated analytics and enhanced security measures.

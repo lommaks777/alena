@@ -2,11 +2,21 @@
 
 <cite>
 **Referenced Files in This Document**   
-- [quiz.html](file://quiz.html)
-- [api/generate-result.js](file://api/generate-result.js)
-- [api/submit.js](file://api/submit.js)
+- [quiz.html](file://quiz.html) - *Updated in commit 9b0da9b8*
+- [api/generate-result.js](file://api/generate-result.js) - *Updated in commit 9b0da9b8*
+- [api/submit.js](file://api/submit.js) - *Updated in commit 9b0da9b8*
 - [answers.json](file://answers.json)
 </cite>
+
+## Update Summary
+**Changes Made**   
+- Updated quiz flow to reflect reorganization of question order
+- Added documentation for new optional question 10 about user concerns
+- Updated progress tracking to reflect 10-question flow
+- Modified answer selection mechanics to include text input handling
+- Updated state management to include new question and name input at end
+- Changed language tone references from formal to informal
+- Updated all diagrams and references to reflect current implementation
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -20,7 +30,10 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The Quiz Interface is a dynamic web-based assessment tool designed to evaluate an individual's stage of adaptation in a new country through a 9-question interactive flow. The interface combines responsive HTML structure, CSS styling for visual appeal and mobile compatibility, and JavaScript functionality for seamless user interaction. It features progressive question navigation, real-time answer selection feedback, and a visually engaging progress tracking system. Upon completion, the quiz connects to backend APIs to generate personalized results and submit user responses. The design emphasizes accessibility, user experience, and emotional engagement through thoughtful animations, color gradients, and micro-interactions.
+The Quiz Interface is a dynamic web-based assessment tool designed to evaluate an individual's stage of adaptation in a new country through a 10-question interactive flow. The interface combines responsive HTML structure, CSS styling for visual appeal and mobile compatibility, and JavaScript functionality for seamless user interaction. It features progressive question navigation, real-time answer selection feedback, and a visually engaging progress tracking system. Key changes include moving the name input to the end of the quiz and adding a new optional question about user concerns. The interface uses informal language ("ты") throughout to create a more personal connection with users. Upon completion, the quiz connects to backend APIs to generate personalized results and submit user responses. The design emphasizes accessibility, user experience, and emotional engagement through thoughtful animations, color gradients, and micro-interactions.
+
+**Section sources**
+- [quiz.html](file://quiz.html#L1-L1690)
 
 ## Project Structure
 The quiz interface is implemented as a standalone HTML file (`quiz.html`) that incorporates inline CSS and JavaScript, making it self-contained while maintaining modular functionality. The project includes backend API endpoints in the `api/` directory for result generation and response submission. User responses are stored in `answers.json`, and the overall structure follows a client-server model with localStorage used for client-side statistics tracking. The interface is part of a larger ecosystem that includes additional pages like `stats.html` and `thank-you.html`, indicating a comprehensive user journey from assessment to results and follow-up.
@@ -49,7 +62,7 @@ A --> I[localStorage]
 - [api/submit.js](file://api/submit.js)
 
 ## Core Components
-The quiz interface consists of several core components that work together to create a seamless user experience. The primary components include the question container with dynamic visibility, the progress bar for visual feedback, navigation controls for moving between questions, and the result display system that presents personalized feedback. The interface handles both text input (for the user's name) and radio button selections (for the nine assessment questions), with JavaScript managing the state of user responses throughout the quiz flow. The system also includes a booking form that appears after quiz completion, enabling users to schedule a coaching session.
+The quiz interface consists of several core components that work together to create a seamless user experience. The primary components include the question container with dynamic visibility, the progress bar for visual feedback, navigation controls for moving between questions, and the result display system that presents personalized feedback. The interface handles both text input (for the user's name and concerns) and radio button selections (for the nine assessment questions), with JavaScript managing the state of user responses throughout the quiz flow. The system also includes a booking form that appears after quiz completion, enabling users to schedule a coaching session. Key changes include reorganizing the flow to place the name input at the end and adding a new optional question about user concerns.
 
 **Section sources**
 - [quiz.html](file://quiz.html#L120-L1599)
@@ -78,14 +91,11 @@ API1 --> |Confirmation| Client
 ## Detailed Component Analysis
 
 ### Quiz Flow and Navigation
-The quiz interface implements a linear 9-question assessment flow with dynamic question progression. Users begin with a name input field (question 0) followed by nine multiple-choice questions that assess various aspects of cultural adaptation. The navigation system allows users to move forward and backward through the questions using dedicated buttons, with JavaScript controlling the visibility of each question through CSS class manipulation. The system enforces answer validation by disabling the "Next" button until a response is selected, ensuring data completeness.
+The quiz interface implements a linear 10-question assessment flow with dynamic question progression. Users begin with nine multiple-choice questions that assess various aspects of cultural adaptation, followed by an optional open-ended question about their primary concerns, and finally a name input field. This reorganization from the previous version places the personal information collection at the end, creating a more natural conversational flow. The navigation system allows users to move forward and backward through the questions using dedicated buttons, with JavaScript controlling the visibility of each question through CSS class manipulation. The system enforces answer validation by disabling the "Next" button until a response is selected for required questions, while the concern question (question 10) is optional and allows progression regardless of input.
 
 ```mermaid
 flowchart TD
-Start([Start Quiz]) --> Q0[Enter Name]
-Q0 --> ValidateName{"Name Entered?"}
-ValidateName --> |No| Q0
-ValidateName --> |Yes| Q1[Question 1]
+Start([Start Quiz]) --> Q1[Question 1]
 Q1 --> Q2[Question 2]
 Q2 --> Q3[Question 3]
 Q3 --> Q4[Question 4]
@@ -94,8 +104,10 @@ Q5 --> Q6[Question 6]
 Q6 --> Q7[Question 7]
 Q7 --> Q8[Question 8]
 Q8 --> Q9[Question 9]
-Q9 --> ValidateAll{"All Answers Complete?"}
-ValidateAll --> |No| Q9
+Q9 --> Q10[Question 10 - Optional Concerns]
+Q10 --> Q11[Name Input]
+Q11 --> ValidateAll{"All Answers Complete?"}
+ValidateAll --> |No| Q11
 ValidateAll --> |Yes| ShowResults[Display Results]
 ShowResults --> Submit[Submit Responses]
 Submit --> Complete([Quiz Complete])
@@ -109,7 +121,7 @@ Submit --> Complete([Quiz Complete])
 - [quiz.html](file://quiz.html#L1204-L1292)
 
 ### Answer Selection and State Management
-The answer selection mechanism uses radio buttons styled as interactive cards, providing visual feedback when selected. JavaScript handles the selection events, updating both the visual state (by adding a "selected" class) and the internal state object that tracks user responses. The system maintains state in a JavaScript object that maps question identifiers to selected answers, with special handling for the initial name input field. This state management approach allows the quiz to preserve user responses throughout the navigation flow and when moving backward through questions.
+The answer selection mechanism uses radio buttons styled as interactive cards for multiple-choice questions, providing visual feedback when selected, and includes text inputs for the name and concerns questions. JavaScript handles the selection events, updating both the visual state (by adding a "selected" class) and the internal state object that tracks user responses. The system maintains state in a JavaScript object that maps question identifiers to selected answers, with special handling for the name input field (q0) and the concerns field (q10). This state management approach allows the quiz to preserve user responses throughout the navigation flow and when moving backward through questions. The state object uses question identifiers q1-q9 for the multiple choice questions, q10 for the concerns question, and q0 for the name input.
 
 ```mermaid
 classDiagram
@@ -142,7 +154,7 @@ Quiz --> answers.json : "via API submit"
 - [quiz.html](file://quiz.html#L1166-L1292)
 
 ### Progress Tracking and Visual Feedback
-The progress tracking system consists of a visual progress bar and a question counter that update in real-time as users navigate through the quiz. The progress bar uses CSS width animation to provide smooth visual feedback, while the counter displays the current question number out of the total. The system calculates progress as a percentage of completed questions and updates both the visual bar width and text counter simultaneously. This dual feedback mechanism helps users understand their position in the quiz flow and provides motivation to complete the assessment.
+The progress tracking system consists of a visual progress bar and a question counter that update in real-time as users navigate through the quiz. The progress bar uses CSS width animation to provide smooth visual feedback, while the counter displays the current question number out of the total. The system calculates progress as a percentage of completed questions and updates both the visual bar width and text counter simultaneously. This dual feedback mechanism helps users understand their position in the quiz flow and provides motivation to complete the assessment. With the updated 10-question flow, the progress tracking now reflects the complete assessment including the optional concerns question and name input.
 
 ```mermaid
 sequenceDiagram
@@ -200,4 +212,4 @@ Common issues with the quiz interface typically relate to event handling and sta
 - [api/submit.js](file://api/submit.js#L1-L63)
 
 ## Conclusion
-The Quiz Interface represents a well-structured, self-contained web application that effectively combines frontend interactivity with backend processing to deliver a personalized user experience. Its architecture balances simplicity with functionality, using minimal dependencies while providing a rich interactive experience. The system demonstrates thoughtful design in its state management, navigation flow, and error handling, with particular attention to user experience through visual feedback and progressive disclosure. The integration with AI-powered result generation adds significant value by providing personalized insights, while the fallback mechanisms ensure reliability. The codebase shows evidence of iterative development with comprehensive event handling and debugging support, making it maintainable and extensible for future enhancements.
+The Quiz Interface represents a well-structured, self-contained web application that effectively combines frontend interactivity with backend processing to deliver a personalized user experience. Its architecture balances simplicity with functionality, using minimal dependencies while providing a rich interactive experience. The system demonstrates thoughtful design in its state management, navigation flow, and error handling, with particular attention to user experience through visual feedback and progressive disclosure. The integration with AI-powered result generation adds significant value by providing personalized insights, while the fallback mechanisms ensure reliability. The recent updates, including moving the name input to the end and adding an optional concerns question, enhance the conversational flow and user engagement. The codebase shows evidence of iterative development with comprehensive event handling and debugging support, making it maintainable and extensible for future enhancements.

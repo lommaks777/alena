@@ -2,9 +2,17 @@
 
 <cite>
 **Referenced Files in This Document**   
-- [quiz.html](file://quiz.html)
-- [api/generate-result.js](file://api/generate-result.js)
+- [quiz.html](file://quiz.html) - *Updated in recent commit*
+- [api/generate-result.js](file://api/generate-result.js) - *Updated in recent commit*
 </cite>
+
+## Update Summary
+**Changes Made**   
+- Updated section on Result Container Structure to reflect new CTA structure and updated section titles
+- Modified Dynamic Rendering and Staged Reveal section to reflect countdown duration change from 20 to 15 seconds
+- Updated JavaScript Logic for API Integration section to reflect structural changes in result rendering
+- Added information about the new question (q10) in the Result Container Structure section
+- Updated section sources throughout to reflect code changes and file locations
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -28,7 +36,7 @@ The primary structure includes:
 - **Actionable recommendations**: Specific steps the user can take to progress in their adaptation journey
 - **Coaching call-to-action**: A section encouraging users to book a personal coaching session
 
-The container is initially hidden and becomes active when results are ready to be displayed, transitioning from the quiz interface to the results view.
+The container is initially hidden and becomes active when results are ready to be displayed, transitioning from the quiz interface to the results view. The system now includes a new optional question (q10) about user concerns in emigration, which is incorporated into the result analysis and displayed in the final Telegram message to the coach.
 
 **Section sources**
 - [quiz.html](file://quiz.html#L185-L188)
@@ -43,14 +51,14 @@ The dynamic rendering process follows these steps:
 3. Simultaneously request AI-generated content from the backend
 4. Present the final results once both the countdown completes and the API response is received
 
-The staged reveal uses CSS animations to create visual interest, with pulsing effects on both the loading container and countdown numbers to maintain user attention during the waiting period.
+The staged reveal uses CSS animations to create visual interest, with pulsing effects on both the loading container and countdown numbers to maintain user attention during the waiting period. The countdown duration has been updated from 20 seconds to 15 seconds, as reflected in the `showCountdown` method.
 
 **Section sources**
 - [quiz.html](file://quiz.html#L1370-L1387)
 - [quiz.html](file://quiz.html#L1343-L1368)
 
 ## Countdown Timer Implementation
-The countdown timer provides visual feedback during the result generation process, creating a sense of anticipation and masking potential API latency. The timer runs for 20 seconds, counting down from 20 to 1 with a one-second interval between updates.
+The countdown timer provides visual feedback during the result generation process, creating a sense of anticipation and masking potential API latency. The timer runs for 15 seconds, counting down from 15 to 1 with a one-second interval between updates.
 
 The implementation uses JavaScript's `Promise` and `setTimeout` to create asynchronous delays that allow the UI to update between each second. During each iteration, the result content is updated with the current countdown value, accompanied by encouraging messages that personalize the experience by incorporating the user's name when available.
 
@@ -101,7 +109,7 @@ The API integration uses the `fetch` method to POST user data to `/api/generate-
 - Question texts for context
 - Answer texts for context
 
-The response is expected to contain HTML-formatted coaching advice that is directly injected into the result container.
+The response is expected to contain HTML-formatted coaching advice that is directly injected into the result container. The system has been updated to use a more structured approach to result rendering, with the `personaliseResultLayout` and `renderStructuredLayout` methods handling the display of AI-generated content.
 
 **Section sources**
 - [quiz.html](file://quiz.html#L1370-L1387)

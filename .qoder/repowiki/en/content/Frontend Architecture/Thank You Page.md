@@ -2,10 +2,17 @@
 
 <cite>
 **Referenced Files in This Document**   
-- [thank-you.html](file://thank-you.html)
-- [quiz.html](file://quiz.html)
-- [vercel.json](file://vercel.json)
+- [thank-you.html](file://thank-you.html) - *Updated in commit 42c1b207*
+- [quiz.html](file://quiz.html#L1579-L1617) - *Source of redirection logic*
+- [vercel.json](file://vercel.json) - *Vercel Insights configuration*
 </cite>
+
+## Update Summary
+**Changes Made**   
+- Updated all instances of "session" to "meeting" in accordance with recent UI terminology changes
+- Corrected outdated references in navigation section to reflect current link behavior
+- Verified and updated all file source annotations to reflect actual line ranges and changes
+- Ensured all content is fully converted to English as per language enforcement rules
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -18,18 +25,18 @@
 8. [Vercel Insights Integration](#vercel-insights-integration)
 
 ## Introduction
-The thank-you page serves as the post-quiz confirmation and scheduling interface for users who have completed the adaptation stage quiz. This page confirms successful submission, displays a success message, and provides an integrated calendar widget for booking a free 30-minute coaching session. The page is designed with responsive styling, gradient backgrounds, and seamless navigation back to the main quiz.
+The thank-you page serves as the post-quiz confirmation and scheduling interface for users who have completed the adaptation stage quiz. This page confirms successful submission, displays a success message, and provides an integrated calendar widget for booking a free 30-minute meeting. The page is designed with responsive styling, gradient backgrounds, and seamless navigation back to the main quiz.
 
 **Section sources**
 - [thank-you.html](file://thank-you.html#L1-L189)
 
 ## Post-Submission User Flow
-After users complete the quiz on quiz.html, they are automatically redirected to the thank-you.html page. This transition occurs after form submission through JavaScript execution in the quiz interface. The user flow begins with quiz completion, followed by data submission to Telegram via API, and concludes with redirection to the thank-you page where users can schedule their coaching session. This seamless flow ensures users receive immediate confirmation of their submission and are guided toward the next step of booking a personalized consultation.
+After users complete the quiz on quiz.html, they are automatically redirected to the thank-you.html page. This transition occurs after form submission through JavaScript execution in the quiz interface. The user flow begins with quiz completion, followed by data submission to Telegram via API, and concludes with redirection to the thank-you page where users can schedule their meeting. This seamless flow ensures users receive immediate confirmation of their submission and are guided toward the next step of booking a personalized consultation.
 
 The redirection is implemented through a setTimeout function that triggers window.location.href navigation to thank-you.html after successful form submission and Telegram API response.
 
 **Section sources**
-- [quiz.html](file://quiz.html#L1615-L1641)
+- [quiz.html](file://quiz.html#L1579-L1617)
 - [thank-you.html](file://thank-you.html#L1-L189)
 
 ## Success Message Display
@@ -49,14 +56,14 @@ G --> H[Display Success Message]
 ```
 
 **Diagram sources**
-- [quiz.html](file://quiz.html#L1615-L1641)
+- [quiz.html](file://quiz.html#L1579-L1617)
 - [thank-you.html](file://thank-you.html#L73-L87)
 
 **Section sources**
 - [thank-you.html](file://thank-you.html#L73-L87)
 
 ## Cal.com Integration for Appointment Booking
-The thank-you page integrates Cal.com for seamless appointment scheduling. This integration allows users to book a free 30-minute coaching session directly through an embedded calendar widget. The Cal.com API is initialized with specific configuration parameters that customize the booking experience for this particular use case.
+The thank-you page integrates Cal.com for seamless appointment scheduling. This integration allows users to book a free 30-minute meeting directly through an embedded calendar widget. The Cal.com API is initialized with specific configuration parameters that customize the booking experience for this particular use case.
 
 The integration uses Cal.com's JavaScript SDK which is loaded asynchronously to prevent blocking page rendering. The initialization process creates a namespace for the calendar instance and configures it with the appropriate calendar link and display settings. This third-party integration eliminates the need for custom scheduling logic while providing a professional booking experience.
 
@@ -119,7 +126,7 @@ K --> O[Optimized font sizes]
 - [thank-you.html](file://thank-you.html#L73-L157)
 
 ## Navigation Elements
-The thank-you page includes a navigation element that allows users to return to the main quiz interface. This navigation consists of a text link positioned at the bottom of the content area with the text "← Вернуться на главную" (Return to main). The link points to index.html, which contains a redirect to quiz.html, effectively returning users to the beginning of the quiz experience.
+The thank-you page includes a navigation element that allows users to return to the main quiz interface. This navigation consists of a text link positioned at the bottom of the content area with the text "← Return to main" (previously in Russian). The link points to index.html, which contains a redirect to quiz.html, effectively returning users to the beginning of the quiz experience.
 
 The navigation link is styled with the brand's primary color and includes hover effects that enhance usability. When hovered, the link changes color and displays an underline, providing clear visual feedback to users. The centered positioning of the link ensures it is easily discoverable after users have completed the booking process or if they wish to retake the quiz.
 

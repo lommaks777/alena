@@ -2,7 +2,7 @@
 
 <cite>
 **Referenced Files in This Document**   
-- [quiz.html](file://quiz.html)
+- [quiz.html](file://quiz.html) - *Updated in commit 9b0da9b8cf8fe241385e68b207124127f104022c*
 - [thank-you.html](file://thank-you.html)
 - [stats.html](file://stats.html)
 - [api/submit.js](file://api/submit.js)
@@ -10,6 +10,14 @@
 - [api/stats.js](file://api/stats.js)
 - [answers.json](file://answers.json)
 </cite>
+
+## Update Summary
+**Changes Made**   
+- Updated user workflow to reflect reorganized question flow and new concern question
+- Modified quiz completion process to reflect updated question order and count
+- Added information about informal tone usage in user interface
+- Updated section sources to reflect changes in quiz.html
+- Corrected quiz question count from 9 to 10 questions total (including name input)
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -19,7 +27,7 @@
 5. [System Integration and Data Flow](#system-integration-and-data-flow)
 
 ## Introduction
-This document details the primary user and administrative workflows in the alena application, a quiz-based tool designed to assess the adaptation stage of individuals in a new country. The application guides users through a 9-question assessment, delivers AI-generated personalized feedback, and facilitates scheduling coaching sessions. Administrators can view aggregated response statistics through a dedicated interface. The system leverages client-side JavaScript, serverless API endpoints on Vercel, and a JSON file for persistent data storage.
+This document details the primary user and administrative workflows in the alena application, a quiz-based tool designed to assess the adaptation stage of individuals in a new country. The application guides users through a 10-question assessment (including name input), delivers AI-generated personalized feedback, and facilitates scheduling coaching sessions. Administrators can view aggregated response statistics through a dedicated interface. The system leverages client-side JavaScript, serverless API endpoints on Vercel, and Supabase for persistent data storage. Recent updates have reorganized the quiz flow, added a new concern question, and enhanced the result prompt.
 
 ## User Workflow
 
@@ -42,13 +50,13 @@ H --> I[Schedule Session via Cal.com]
 - [thank-you.html](file://thank-you.html#L50-L100)
 
 **Section sources**
-- [quiz.html](file://quiz.html#L1-L1705)
+- [quiz.html](file://quiz.html#L1-L1705) - *Updated in commit 9b0da9b8cf8fe241385e68b207124127f104022c*
 - [thank-you.html](file://thank-you.html#L1-L189)
 - [api/generate-result.js](file://api/generate-result.js#L1-L243)
 - [api/submit.js](file://api/submit.js#L1-L63)
 
 ### Accessing Quiz and Completing Assessment
-The user accesses the application via quiz.html. The quiz presents 9 questions plus an initial name input field. The user interface features a progress bar, navigation buttons, and a responsive design. Users navigate through questions using "Next" and "Previous" buttons. The "Next" button is disabled until an answer is selected or a name is entered. The system tracks the current question, user answers, and start time in the Quiz class instance. The estimated time for completion is under 1 minute, aligning with the user expectation of a quick assessment.
+The user accesses the application via quiz.html. The quiz presents 10 questions including an initial name input field. The user interface features a progress bar, navigation buttons, and a responsive design. Users navigate through questions using "Next" and "Previous" buttons. The "Next" button is disabled until an answer is selected or a name is entered. The system tracks the current question, user answers, and start time in the Quiz class instance. The quiz flow has been reorganized with a new concern question added, and the questions now use informal 'ты' instead of formal 'вы' for a more personal user experience. The estimated time for completion is under 1 minute, aligning with the user expectation of a quick assessment.
 
 ### Receiving AI-Generated Feedback
 Upon answering the final question, the user clicks "Next" to trigger the `showResults()` method. This method first updates local statistics, then calls the `/api/generate-result` endpoint with the user's name, answers, and question/answer text mappings. While the AI processes the request, a 20-second countdown animation is displayed to manage user expectations. The API uses the OpenAI GPT-4o-mini model to generate personalized HTML content based on the user's responses. If the API is unavailable (e.g., missing API key), a fallback static result is generated based on the dominant answer choice (A, B, C, or D). The generated feedback is structured into six sections: "Where You Are," "What's Important Now," "In 7/14/30 Days," "First Step," "Recommendation," and "Bonus," providing a comprehensive and supportive analysis.

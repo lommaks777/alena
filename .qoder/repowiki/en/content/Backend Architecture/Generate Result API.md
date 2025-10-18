@@ -2,10 +2,17 @@
 
 <cite>
 **Referenced Files in This Document**   
-- [generate-result.js](file://api/generate-result.js)
-- [answers.json](file://answers.json)
-- [README.md](file://README.md)
+- [generate-result.js](file://api/generate-result.js) - *Updated in recent commit*
+- [answers.json](file://answers.json) - *Referenced for stage determination logic*
 </cite>
+
+## Update Summary
+**Changes Made**   
+- Updated the response format section to reflect the new seven-block structure
+- Modified the AI integration section to correct the prompt structure description from "six-block" to "seven-block"
+- Updated the fallback mechanism section to reflect the change in heading text from "Где вы сейчас" to "Где ты сейчас"
+- Corrected the example responses to use the updated Russian heading "Где ты сейчас"
+- Added details about markdown tag cleaning in the AI integration section
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -59,19 +66,16 @@ The API returns JSON responses with a `result` field containing HTML content. Th
 - Emojis are used sparingly for visual enhancement
 - Content is properly HTML-escaped to prevent XSS
 
-The response includes six structured sections: current state, key focus areas, 7/14/30 day timeline, first step, recommendation, and bonus. When fallback content is used, a `warning` field may be included indicating the reason (fallback, empty, or exception).
+The response includes seven structured sections: current state, key focus areas, first step, recommendation, bonus, and next steps. When fallback content is used, a `warning` field may be included indicating the reason (fallback, empty, or exception).
 
 ```mermaid
 flowchart TD
-A["HTML Response Structure"] --> B["h2.section-title: Where You Are"]
-A --> C["h2.section-title: What's Important Now"]
-A --> D["h2.section-title: 7/14/30 Days"]
-D --> D1["h3: In 7 Days"]
-D --> D2["h3: In 14 Days"]
-D --> D3["h3: In 30 Days"]
-A --> E["h2.section-title: First Step"]
-A --> F["h2.section-title: Recommendation"]
-A --> G["h2.section-title: Bonus"]
+A["HTML Response Structure"] --> B["h2.section-title: Где ты сейчас"]
+A --> C["h2.section-title: Что сейчас важно"]
+A --> D["h2.section-title: Первый, самый бережный шаг"]
+A --> E["h2.section-title: Моя рекомендация для тебя"]
+A --> F["h2.section-title: Маленький бонус для настроения"]
+A --> G["h2.section-title: Что дальше? Давай поговорим"]
 ```
 
 **Diagram sources**
@@ -89,7 +93,7 @@ The API integrates with OpenAI's GPT-4o-mini model to generate personalized coac
 - **System Prompt**: "You are an empathetic coach and marketer who helps women in immigration. Write structured content with light emojis and inspiring formulations, but without clichés."
 - **User Prompt**: Includes user name, formatted answers, and detailed formatting instructions
 
-The API constructs a prompt that instructs the AI to follow a specific HTML structure with exact CSS classes and content organization. The system ensures proper error handling for API failures and validates the response before returning it to the client.
+The API constructs a prompt that instructs the AI to follow a specific HTML structure with exact CSS classes and content organization. The system ensures proper error handling for API failures and validates the response before returning it to the client. The prompt explicitly requires a seven-block structure with specific section headings in Russian. The system also removes any markdown tags (```html) that might be included in the AI response.
 
 ```mermaid
 sequenceDiagram
@@ -101,6 +105,7 @@ API->>API : Validate request
 API->>API : Construct prompt
 API->>OpenAI : POST /chat/completions
 OpenAI-->>API : Return AI-generated content
+API->>API : Clean markdown tags
 API->>API : Validate response
 API->>Client : Return HTML result
 ```
@@ -119,7 +124,7 @@ The API implements a comprehensive fallback mechanism that activates when:
 3. AI generates an empty or invalid response
 4. An exception occurs during processing
 
-The fallback system uses pre-written content templates for four adaptation stages (A, B, C, D). Each stage includes structured guidance with title, current state description, focus areas, timeline recommendations, first step, general recommendation, and bonus suggestion. The fallback content is localized in Russian and includes emojis for visual engagement.
+The fallback system uses pre-written content templates for four adaptation stages (A, B, C, D). Each stage includes structured guidance with title, current state description, focus areas, timeline recommendations, first step, general recommendation, and bonus suggestion. The fallback content is localized in Russian and includes emojis for visual engagement. The heading text has been updated from "Где вы сейчас" to "Где ты сейчас" to create a more personal tone.
 
 ```mermaid
 flowchart TD
@@ -247,7 +252,7 @@ E --> K["Validate JSON structure"]
 **Response:**
 ```json
 {
-  "result": "<h2 class=\"section-title\">Where You Are</h2><p><strong>✈️ Stage 1. Tourist — \"Everything is new and interesting\"</strong></p>..."
+  "result": "<h2 class=\"section-title\">Где ты сейчас</h2><p><strong>✈️ Стадия 1. Туристка — «Пока всё ново и интересно»</strong></p>..."
 }
 ```
 
@@ -265,7 +270,7 @@ E --> K["Validate JSON structure"]
 **Response:**
 ```json
 {
-  "result": "<h2 class=\"section-title\">Где вы сейчас</h2><p><strong>🌑 Стадия 3. Усталость — «Живу, но не чувствую себя живой»</strong></p>...",
+  "result": "<h2 class=\"section-title\">Где ты сейчас</h2><p><strong>🌑 Стадия 3. Усталость — «Живу, но не чувствую себя живой»</strong></p>...",
   "warning": "fallback"
 }
 ```

@@ -27,8 +27,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { answers, result } = req.body;
-        console.log('Received submission:', { answers, result });
+        const { answers, result, isPartial = false, currentQuestion, sessionId } = req.body;
+        console.log('Received submission:', { answers, result, isPartial, currentQuestion, sessionId });
         
         // Check if Supabase is configured
         if (!supabase) {
@@ -49,25 +49,56 @@ export default async function handler(req, res) {
             result: result,
             answers: answers,
             concern: concern,
-            created_at: new Date().toISOString()
+            is_partial: isPartial,
+            current_question: currentQuestion || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         };
         
-        // Insert into Supabase
-        const { data, error } = await supabase
-            .from('quiz_responses')
-            .insert([quizData])
-            .select();
+        let responseData;
         
-        if (error) {
-            console.error('Supabase error:', error);
-            throw error;
+        // If we have a sessionId, update the existing record
+        if (sessionId) {
+            const { data, error } = await supabase
+                .from('quiz_responses')
+                .update({
+                    answers: answers,
+                    result: result,
+                    is_partial: isPartial,
+                    current_question: currentQuestion || null,
+                    updated_at: new Date().toISOString(),
+                    ...(concern && { concern: concern })
+                })
+                .eq('id', sessionId)
+                .select();
+            
+            if (error) {
+                console.error('Supabase update error:', error);
+                throw error;
+            }
+            
+            responseData = data[0];
+            console.log('Successfully updated in Supabase:', responseData);
+        } else {
+            // Create a new record
+            const { data, error } = await supabase
+                .from('quiz_responses')
+                .insert([quizData])
+                .select();
+            
+            if (error) {
+                console.error('Supabase insert error:', error);
+                throw error;
+            }
+            
+            responseData = data[0];
+            console.log('Successfully saved to Supabase:', responseData);
         }
         
-        console.log('Successfully saved to Supabase:', data);
-        
         res.status(200).json({ 
-            message: 'Answers submitted successfully',
-            data: data[0]
+            message: isPartial ? 'Partial answers saved' : 'Answers submitted successfully',
+            data: responseData,
+            sessionId: responseData.id
         });
     } catch (error) {
         console.error('Error submitting answers:', error);

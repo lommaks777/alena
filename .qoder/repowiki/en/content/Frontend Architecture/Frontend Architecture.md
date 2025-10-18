@@ -12,6 +12,17 @@
 - [api/stats.js](file://api/stats.js)
 </cite>
 
+## Update Summary
+**Changes Made**   
+- Updated quiz flow description to reflect reorganization from 9 to 10 questions
+- Modified question sequence to account for name input moved to end and new concern question
+- Updated architecture diagrams to reflect six-step structure instead of previous model
+- Corrected total question count and navigation logic in all relevant sections
+- Updated API integration details to reflect enhanced result prompt structure
+- Added documentation for optional concern question (q10) handling
+- Removed outdated "Your growth points" section references
+- Updated source tracking annotations to reflect recent commits
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -24,7 +35,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides comprehensive architectural documentation for the frontend components of the alena application. The application is designed as a static HTML-based quiz platform that assesses users' adaptation stages in a new country through a 9-question assessment. The frontend architecture consists of multiple standalone HTML pages that serve different user flows: index.html (landing), quiz.html (assessment interface), thank-you.html (post-submission actions), stats.html (analytics dashboard), and strategy-map.html (coaching guidance). The system implements client-side JavaScript logic for question navigation, answer collection, and API communication with backend services. The UI flow guides users through an automatic progression quiz, displays personalized results, and facilitates coaching session scheduling via Cal.com integration. The design follows responsive principles to ensure optimal user experience across various devices.
+This document provides comprehensive architectural documentation for the frontend components of the alena application. The application is designed as a static HTML-based quiz platform that assesses users' adaptation stages in a new country through a 10-question assessment. The frontend architecture consists of multiple standalone HTML pages that serve different user flows: index.html (landing), quiz.html (assessment interface), thank-you.html (post-submission actions), stats.html (analytics dashboard), and strategy-map.html (coaching guidance). The system implements client-side JavaScript logic for question navigation, answer collection, and API communication with backend services. The UI flow guides users through an automatic progression quiz, displays personalized results, and facilitates coaching session scheduling via Cal.com integration. The design follows responsive principles to ensure optimal user experience across various devices.
 
 ## Project Structure
 The alena application follows a flat, static file structure with HTML pages serving as the primary entry points for different user journeys. The root directory contains all HTML templates that represent distinct user flows, with a dedicated `api` directory housing serverless functions that handle data processing and storage. The architecture is intentionally simple, leveraging static hosting capabilities while maintaining dynamic functionality through client-side JavaScript and API endpoints. This structure enables easy deployment and maintenance while supporting the core functionality of user assessment, result generation, and data analytics.
@@ -125,7 +136,7 @@ thank-you.html->>Cal : Load booking interface
 ## Detailed Component Analysis
 
 ### Quiz Interface Analysis
-The quiz.html component implements a comprehensive assessment interface with sophisticated client-side logic for managing the 9-question quiz flow. The component handles question navigation through DOM manipulation, dynamically showing and hiding questions while updating the progress bar and question counter. Answer collection is managed through event listeners on radio inputs, with visual feedback provided through CSS transitions and class toggling when options are selected. The interface enforces sequential progression, requiring users to answer each question before advancing, while allowing backward navigation to modify previous answers. The component maintains state through JavaScript variables that track the current question index, collected answers, and form validity.
+The quiz.html component implements a comprehensive assessment interface with sophisticated client-side logic for managing the 10-question quiz flow. The component handles question navigation through DOM manipulation, dynamically showing and hiding questions while updating the progress bar and question counter. Answer collection is managed through event listeners on radio inputs, with visual feedback provided through CSS transitions and class toggling when options are selected. The interface enforces sequential progression, requiring users to answer each question before advancing, while allowing backward navigation to modify previous answers. The component maintains state through JavaScript variables that track the current question index, collected answers, and form validity.
 
 #### For Complex Logic Components:
 ```mermaid

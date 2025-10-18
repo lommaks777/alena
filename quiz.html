@@ -521,7 +521,7 @@
             </div>
 
             <div class="question" data-question="2">
-                <h3>2. Как ты чаще всего себя чувствуете?</h3>
+                <h3>2. Как ты чаще всего себя чувствуешь    ?</h3>
                 <div class="options">
                     <label class="option">
                         <input type="radio" name="q2" value="A">
@@ -776,6 +776,7 @@
                 this.currentQuestion = 1;
                 this.totalQuestions = 10;
                 this.answers = {};
+                this.sessionId = null; // Для отслеживания сессии автосохранения
                 this.startTimeMs = Date.now();
                 this.results = {
                     A: "✈️ Стадия 1. Туристка — «Пока всё ново и интересно»",
@@ -1136,6 +1137,9 @@
                 
                 this.updateNavigation();
                 
+                // Сохраняем ответ на сервер
+                this.savePartialAnswers();
+                
                 // Показываем индикатор загрузки
                 const nextBtn = document.getElementById('nextBtn');
                 if (nextBtn) {
@@ -1162,6 +1166,8 @@
                     if (nameInput) {
                         this.answers['q0'] = nameInput.value.trim();
                         console.log('Saved name:', this.answers['q0']);
+                        // Сохраняем имя на сервер
+                        this.savePartialAnswers();
                     }
                 }
                 
@@ -1171,6 +1177,8 @@
                     if (concernInput) {
                         this.answers['q10'] = concernInput.value.trim();
                         console.log('Saved concern:', this.answers['q10']);
+                        // Сохраняем опасения на сервер
+                        this.savePartialAnswers();
                     }
                 }
                 
@@ -1368,14 +1376,19 @@
                     this.displayResult(fallbackResult);
                 }
 
-                // Отправляем ответы автору
+                // Отправляем финальные ответы автору
                 try {
                     await fetch('/api/submit', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ answers: this.answers, result: this.calculateResult() })
+                        body: JSON.stringify({ 
+                            answers: this.answers, 
+                            result: this.calculateResult(),
+                            isPartial: false, // Финальное сохранение
+                            sessionId: this.sessionId // Используем ID сессии если есть
+                        })
                     });
                 } catch (error) {
                     console.error('Error submitting answers:', error);
@@ -1534,6 +1547,36 @@
                         </div>
                     </div>
                 `;
+            }
+
+            async savePartialAnswers() {
+                // Отправляем текущее состояние ответов на сервер
+                try {
+                    const response = await fetch('/api/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            answers: this.answers, 
+                            result: null, // Результат пока не определен
+                            isPartial: true, // Флаг частичного сохранения
+                            currentQuestion: this.currentQuestion
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Сохраняем ID сессии для последующих обновлений
+                        if (data.sessionId && !this.sessionId) {
+                            this.sessionId = data.sessionId;
+                        }
+                        console.log('Partial answers saved:', data);
+                    }
+                } catch (error) {
+                    console.error('Error saving partial answers:', error);
+                    // Не блокируем пользователя при ошибке сохранения
+                }
             }
 
             async handleBooking(e) {
