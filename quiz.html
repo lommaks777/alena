@@ -1572,10 +1572,17 @@
                     if (response.ok) {
                         const data = await response.json();
                         // Сохраняем ID сессии для последующих обновлений
-                        if (data.sessionId && !this.sessionId) {
+                        if (data.sessionId) {
                             this.sessionId = data.sessionId;
+                            console.log('Session ID saved:', this.sessionId);
                         }
                         console.log('Partial answers saved:', data);
+                    } else {
+                        console.error('Failed to save partial answers, status:', response.status);
+                        const errorData = await response.json().catch(() => null);
+                        if (errorData) {
+                            console.error('Error details:', errorData);
+                        }
                     }
                 } catch (error) {
                     console.error('Error saving partial answers:', error);

@@ -78,8 +78,25 @@ export default async function handler(req, res) {
                 throw error;
             }
             
-            responseData = data[0];
-            console.log('Successfully updated in Supabase:', responseData);
+            // If no record was found with this sessionId, create a new one
+            if (!data || data.length === 0) {
+                console.warn('No record found with sessionId:', sessionId, '- creating new record');
+                const { data: newData, error: insertError } = await supabase
+                    .from('quiz_responses')
+                    .insert([quizData])
+                    .select();
+                
+                if (insertError) {
+                    console.error('Supabase insert error:', insertError);
+                    throw insertError;
+                }
+                
+                responseData = newData[0];
+                console.log('Successfully created new record in Supabase:', responseData);
+            } else {
+                responseData = data[0];
+                console.log('Successfully updated in Supabase:', responseData);
+            }
         } else {
             // Create a new record
             const { data, error } = await supabase
@@ -99,7 +116,7 @@ export default async function handler(req, res) {
         res.status(200).json({ 
             message: isPartial ? 'Partial answers saved' : 'Answers submitted successfully',
             data: responseData,
-            sessionId: responseData.id
+            sessionId: responseData?.id || null
         });
     } catch (error) {
         console.error('Error submitting answers:', error);
