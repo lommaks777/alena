@@ -1564,7 +1564,8 @@
                             answers: this.answers, 
                             result: null, // Результат пока не определен
                             isPartial: true, // Флаг частичного сохранения
-                            currentQuestion: this.currentQuestion
+                            currentQuestion: this.currentQuestion,
+                            sessionId: this.sessionId // Передаем ID сессии для обновления существующей записи
                         })
                     });
                     

@@ -62,6 +62,7 @@ export default async function handler(req, res) {
             const { data, error } = await supabase
                 .from('quiz_responses')
                 .update({
+                    name: name,
                     answers: answers,
                     result: result,
                     is_partial: isPartial,
