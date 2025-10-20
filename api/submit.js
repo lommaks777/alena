@@ -59,6 +59,7 @@ export default async function handler(req, res) {
         
         // If we have a sessionId, update the existing record
         if (sessionId) {
+            console.log('Attempting to update record with sessionId:', sessionId);
             const { data, error } = await supabase
                 .from('quiz_responses')
                 .update({
@@ -78,6 +79,8 @@ export default async function handler(req, res) {
                 throw error;
             }
             
+            console.log('Update result - data length:', data?.length, 'data:', data);
+            
             // If no record was found with this sessionId, create a new one
             if (!data || data.length === 0) {
                 console.warn('No record found with sessionId:', sessionId, '- creating new record');
@@ -92,10 +95,10 @@ export default async function handler(req, res) {
                 }
                 
                 responseData = newData[0];
-                console.log('Successfully created new record in Supabase:', responseData);
+                console.log('Successfully created new record in Supabase:', responseData?.id);
             } else {
                 responseData = data[0];
-                console.log('Successfully updated in Supabase:', responseData);
+                console.log('Successfully updated in Supabase:', responseData?.id);
             }
         } else {
             // Create a new record
