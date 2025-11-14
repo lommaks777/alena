@@ -1264,7 +1264,7 @@
             updateProgress() {
                 const progress = (this.currentQuestion / this.totalQuestions) * 100;
                 document.getElementById('progressFill').style.width = `${progress}%`;
-                const displayNumber = Math.min(this.currentQuestion + 1, this.totalQuestions);
+                const displayNumber = Math.min(this.currentQuestion, this.totalQuestions);
                 document.getElementById('questionCounter').textContent = `${displayNumber} из ${this.totalQuestions}`;
             }
 
